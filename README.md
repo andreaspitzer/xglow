@@ -24,7 +24,7 @@ A liquid glass makeover for X. Same feed, a more personal look.
 
 Screenshots show customized settings. The “Review” button in the Home image belongs to another extension.
 
-Default appearance: **Amber**, **50% tint**, **0 px blur**, **0% glass opacity**. Reset restores these values; saved preferences take priority over defaults.
+Default appearance: **Amber**, **50% tint**, **10 px blur**, **0% glass opacity**. Reset restores these values; saved preferences take priority over defaults.
 
 ## Install
 

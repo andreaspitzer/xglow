@@ -23,15 +23,16 @@ test('Amber defaults and explicit zero effects survive storage normalization', (
   const initial = XGlass.normalize();
   assert.equal(initial.accent, 'amber');
   assert.equal(initial.tint, 50);
-  assert.equal(initial.blur, 0);
+  assert.equal(initial.blur, 10);
   assert.equal(initial.opacity, 0);
   assert.deepEqual(XGlass.normalize(JSON.parse(JSON.stringify(initial))), initial);
+  assert.equal(XGlass.normalize(JSON.parse(JSON.stringify({ ...initial, blur: 0 }))).blur, 0);
   assert.equal(XGlass.normalize({ blur: -1 }).blur, 0);
   assert.equal(XGlass.normalize({ accent: 'ocean', tint: 75, blur: 18, opacity: 49 }).blur, 18);
 });
 
 test('default preferences are exactly the shipped baseline', () => {
-  assert.deepEqual({ ...XGlass.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 0, opacity: 0, cards: true, lite: false, sidebar: false });
+  assert.deepEqual({ ...XGlass.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 10, opacity: 0, cards: true, lite: false, sidebar: false });
   assert.ok(Object.isFrozen(XGlass.defaults));
   assert.equal(XGlass.storageKey, 'xGlass');
 });

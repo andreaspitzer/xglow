@@ -7,7 +7,7 @@ globalThis.XGlass = (() => {
     accent: 'amber',
     customColor: '#97a7ff',
     tint: 50,
-    blur: 0,
+    blur: 10,
     opacity: 0,
     cards: true,
     lite: false,
