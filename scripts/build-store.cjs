@@ -11,7 +11,8 @@ fs.mkdirSync(path.join(extension, 'icons'), { recursive: true });
 fs.mkdirSync(store, { recursive: true });
 
 function render(svg, output, size) {
-  execFileSync('magick', ['-background', 'none', 'svg:-', ...(size ? ['-resize', `${size}x${size}`] : []), `PNG32:${output}`], { input: svg });
+  // Extension icons retain transparent padding. Store artwork is opaque RGB.
+  execFileSync('magick', ['-background', 'none', 'svg:-', ...(size ? ['-resize', `${size}x${size}`] : ['-alpha', 'off']), `${size ? 'PNG32' : 'PNG24'}:${output}`], { input: svg });
 }
 for (const size of [16, 32, 48, 128]) {
   render(icon, path.join(extension, 'icons', `icon-${size}.png`), size);
@@ -25,6 +26,17 @@ const promo = `<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" 
 <g transform="translate(100 20) scale(1.85)">${iconContent}</g>
 </svg>`;
 render(promo, path.join(store, 'promo-440x280.png'));
+
+const marquee = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560">
+<rect width="1400" height="560" fill="${background}"/>
+<circle cx="1360" cy="20" r="640" fill="#f4b952" fill-opacity=".07"/>
+<circle cx="140" cy="560" r="450" fill="#f4b952" fill-opacity=".04"/>
+<g transform="translate(110 105) scale(2.7)">${iconContent}</g>
+<text x="510" y="245" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="#fff4df">X Liquid Glass</text>
+<text x="514" y="309" font-family="Arial, sans-serif" font-size="31" fill="#c8c1b7">Glass cards. Your colors. Your feed.</text>
+${['#97a7ff', '#5bcce8', '#48d397', '#f45c6c', '#ef9dc6', '#f4b952', '#b0c1d5'].map((color, i) => `<circle cx="${529 + i * 44}" cy="374" r="11" fill="${color}"/>`).join('')}
+</svg>`;
+render(marquee, path.join(store, 'marquee-1400x560.png'));
 
 function screenshot({ source, title, subtitle, detail, color, footer, output }) {
   const png = fs.readFileSync(path.join(root, 'docs', 'screenshots', source));
@@ -50,4 +62,4 @@ function screenshot({ source, title, subtitle, detail, color, footer, output }) 
 }
 screenshot({ source: 'home-aurora.png', title: 'A softer feed.', subtitle: 'Glass cards. Your colors.', detail: 'Adjust tint, blur and opacity.', color: '#a6b3ff', footer: 'Customized settings. Review is a separate extension.', output: 'home-1280x800.png' });
 screenshot({ source: 'notifications-amber.png', title: 'Your atmosphere.', subtitle: 'Seven presets. Any HEX color.', detail: 'Glass across notifications and more.', color: '#f4b952', footer: 'Customized Amber settings shown.', output: 'notifications-1280x800.png' });
-console.log('Exported extension icons, a 440×280 promo tile and two 1280×800 listing images.');
+console.log('Exported extension icons, opaque 440×280 and 1400×560 promo tiles and two 1280×800 listing images.');

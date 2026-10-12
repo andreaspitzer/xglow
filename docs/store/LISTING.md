@@ -75,7 +75,10 @@ No developer credentials or access to a personal account are required or provide
 - Extension ZIP: build with `npm run package`; upload the versioned archive in `dist/`.
 - Store icon: `extension/icons/icon-128.png`.
 - Small promotional tile: `docs/store/promo-440x280.png`.
+- Marquee promotional tile: `docs/store/marquee-1400x560.png` (optional).
 - Screenshots: `docs/store/home-1280x800.png` and `docs/store/notifications-1280x800.png`.
+
+Promotional tiles and screenshots are exported as 24-bit RGB PNGs with no alpha channel. Extension icons retain transparent padding.
 
 The screenshots use the owner-supplied images already published in the README. They show customized settings. The Review button visible in Home belongs to another extension and is not a feature of X Liquid Glass.
 
