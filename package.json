@@ -1,6 +1,6 @@
 {
   "name": "x-liquid-glass",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "A local, customizable liquid glass theme for X.",
   "license": "MIT",
@@ -11,6 +11,7 @@
     "test": "node --test",
     "check": "node scripts/check.cjs",
     "build:preview": "node scripts/build-preview.cjs",
+    "build:store": "node scripts/build-store.cjs",
     "predev": "npm run build:preview",
     "dev": "node scripts/serve-preview.cjs",
     "package": "node scripts/package.cjs"

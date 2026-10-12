@@ -29,10 +29,18 @@ assert.ok(manifest.content_scripts.every(entry => entry.matches.every(pattern =>
 const popup = fs.readFileSync(path.join(extension, manifest.action.default_popup), 'utf8');
 assert.ok(popup.includes(`>${manifest.version}</span>`), 'Popup version must match the manifest');
 const referenced = [
+  ...Object.values(manifest.icons || {}),
+  ...Object.values(manifest.action.default_icon || {}),
   ...manifest.content_scripts.flatMap(entry => [...(entry.css || []), ...(entry.js || [])]),
   manifest.action.default_popup,
   ...Array.from(popup.matchAll(/(?:href|src)="([^"]+)"/g), match => match[1])
 ];
+const iconPath = manifest.icons?.['128'];
+assert.ok(iconPath, 'Store package requires a 128 px icon');
+const iconPng = fs.readFileSync(path.join(extension, iconPath));
+assert.equal(iconPng.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'Store icon must be PNG');
+assert.equal(iconPng.readUInt32BE(16), 128, 'Store icon must be 128 px wide');
+assert.equal(iconPng.readUInt32BE(20), 128, 'Store icon must be 128 px high');
 for (const name of referenced) {
   assert.ok(!name.includes('..') && !path.isAbsolute(name) && !name.includes(':'), `Non-local extension asset: ${name}`);
   assert.ok(fs.statSync(path.join(extension, name)).isFile(), `Missing extension asset: ${name}`);

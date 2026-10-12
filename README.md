@@ -39,6 +39,10 @@ Default appearance: **Amber**, **50% tint**, **10 px blur**, **0% glass opacity*
 
 No build step, account, API key or server is needed to use the extension. Chrome 111 or newer is required by the manifest.
 
+Chrome Web Store publication is being prepared; there is no Store listing yet. Installation currently uses the GitHub release above.
+
+Read the [privacy policy](docs/PRIVACY.md). Store listing materials and submission notes are in [docs/store](docs/store/LISTING.md).
+
 To update a local installation, replace its files, click **Reload** on the extension’s card, then reload X.
 
 ## Privacy
