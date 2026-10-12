@@ -32,7 +32,7 @@ test('Amber defaults and explicit zero effects survive storage normalization', (
 });
 
 test('default preferences are exactly the shipped baseline', () => {
-  assert.deepEqual({ ...XGlow.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 10, opacity: 0, cards: true, lite: false, sidebar: false });
+  assert.deepEqual({ ...XGlow.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 10, opacity: 0, cards: true, lite: false, sidebar: false, theme: 'glass' });
   assert.ok(Object.isFrozen(XGlow.defaults));
   assert.equal(XGlow.storageKey, 'xGlass');
 });
@@ -103,8 +103,118 @@ test('stylesheet fallbacks and popup accent match the default palette', () => {
 test('popup offers every accent and every stored preference', () => {
   const html = extensionFile('popup.html');
   for (const accent of [...Object.keys(XGlow.accents), 'custom']) assert.match(html, new RegExp(`data-accent="${accent}"`));
-  for (const id of ['enabled', 'tint', 'blur', 'opacity', 'cards', 'lite', 'sidebar', 'customColor', 'customHex']) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ['enabled', 'tint', 'blur', 'opacity', 'cards', 'lite', 'sidebar', 'theme', 'customColor', 'customHex']) assert.match(html, new RegExp(`id="${id}"`));
   for (const [id, max] of [['tint', 100], ['blur', 40], ['opacity', 90]]) assert.match(html, new RegExp(`id="${id}" type="range" min="0" max="${max}"`));
+});
+
+test('the theme defaults to glass and invalid values fall back to it', () => {
+  assert.equal(XGlow.defaults.theme, 'glass');
+  assert.deepEqual([...XGlow.themes], ['glass', 'cyberpunk', 'hud']);
+  for (const theme of XGlow.themes) assert.equal(XGlow.normalize({ theme }).theme, theme);
+  for (const theme of ['neon', 'HUD', '', 1, null, undefined, {}]) assert.equal(XGlow.normalize({ theme }).theme, 'glass');
+  assert.equal(XGlow.normalize({ theme: 'hud' }).tint, XGlow.defaults.tint);
+});
+
+test('preferences from the cyberpunk toggle migrate to the theme choice', () => {
+  assert.equal(XGlow.normalize({ cyberpunk: true }).theme, 'cyberpunk');
+  assert.equal(XGlow.normalize({ cyberpunk: false }).theme, 'glass');
+  assert.equal(XGlow.normalize({ cyberpunk: 'true' }).theme, 'glass');
+  assert.equal(XGlow.normalize({ theme: 'hud', cyberpunk: true }).theme, 'hud');
+  assert.ok(!('cyberpunk' in XGlow.normalize({ cyberpunk: true })));
+  // Preferences saved before themes existed keep every value.
+  const legacy = { enabled: true, accent: 'rose', blur: 18, opacity: 49, cards: false, lite: false, sidebar: true };
+  assert.deepEqual(XGlow.normalize(legacy), { ...XGlow.defaults, ...legacy });
+});
+
+test('every theme palette has the same keys and the glass palette is unchanged', () => {
+  for (const tone of ['dark', 'light']) {
+    const glass = XGlow.palette({ accent: 'ocean' }, tone);
+    for (const theme of XGlow.themes) {
+      const themed = XGlow.palette({ accent: 'ocean', theme }, tone);
+      assert.deepEqual(Object.keys(themed).sort(), Object.keys(glass).sort());
+      assert.ok(channels(themed.secondary).length === 3);
+    }
+    assert.deepEqual(XGlow.palette({ accent: 'ocean', theme: 'glass' }, tone), XGlow.palette({ accent: 'ocean' }, tone));
+  }
+});
+
+test('the neon palette goes darker and pairs the accent with a second neon', () => {
+  for (const tone of ['dark', 'light']) {
+    const glass = XGlow.palette({ accent: 'ocean' }, tone), neon = XGlow.palette({ accent: 'ocean', theme: 'cyberpunk' }, tone);
+    assert.notEqual(neon.secondary, neon.interfaceAccent);
+    assert.notEqual(neon.background, glass.background);
+    assert.equal(neon.hex, glass.hex);
+  }
+  const dark = XGlow.palette({ accent: 'forest', theme: 'cyberpunk' });
+  assert.ok(Math.max(...channels(dark.base)) < 60 && luminance(dark.base) < .02);
+  assert.equal(XGlow.palette({ theme: 'cyberpunk', tint: 0 }).glowOpacity, '0');
+});
+
+test('neon partner colors are vivid and distinct from every accent', () => {
+  for (const accent of [...Object.keys(XGlow.accents), 'custom']) {
+    for (const customColor of ['#000000', '#ffffff', '#808080', '#97a7ff']) {
+      const settings = { accent, customColor, theme: 'cyberpunk' };
+      const dark = XGlow.palette(settings), light = XGlow.palette(settings, 'light');
+      assert.ok(channels(dark.secondary).every(channel => Number.isInteger(channel) && channel >= 0 && channel <= 255));
+      assert.notEqual(dark.secondary, dark.accent);
+      assert.ok(luminance(light.secondary) <= .3, `${accent} ${customColor} partner must be readable on light`);
+      assert.ok(luminance(light.interfaceAccent) <= .3);
+      assert.ok(luminance(dark.interfaceAccent) >= .25);
+    }
+  }
+  // Amber pairs with cyan, as in the stylesheet fallback.
+  assert.equal(XGlow.palette(XGlow.defaults).secondary, '41, 226, 255');
+});
+
+test('the HUD palette is fixed red and cyan whatever the accent, and stays legible', () => {
+  const reference = XGlow.palette({ theme: 'hud' });
+  for (const accent of [...Object.keys(XGlow.accents), 'custom']) {
+    for (const tone of ['dark', 'light']) {
+      const one = XGlow.palette({ accent, customColor: '#00ff00', theme: 'hud' }, tone);
+      assert.deepEqual(one, XGlow.palette({ theme: 'hud' }, tone));
+      assert.equal(one.controlEnd, one.secondary);
+      assert.notEqual(one.interfaceAccent, one.secondary);
+    }
+  }
+  const [red, , blue] = channels(reference.interfaceAccent);
+  assert.ok(red > 200 && blue < 120 && luminance(reference.interfaceAccent) >= .25);
+  const [cyanRed, cyanGreen] = channels(reference.secondary);
+  assert.ok(cyanRed < 150 && cyanGreen > 200);
+  const light = XGlow.palette({ theme: 'hud' }, 'light');
+  assert.ok(luminance(light.interfaceAccent) <= .3 && luminance(light.secondary) <= .3);
+  assert.ok(luminance(reference.base) < .02 && luminance(light.base) > .85);
+  assert.equal(XGlow.palette({ theme: 'hud', tint: 0 }).glowOpacity, '0');
+});
+
+test('theme stylesheets are gated, loaded in order and fallbacks match', () => {
+  const manifest = JSON.parse(extensionFile('manifest.json'));
+  assert.deepEqual(manifest.content_scripts[0].css, ['glass.css', 'cyberpunk.css', 'hud.css']);
+  const topLevel = list => {
+    const parts = []; let depth = 0, start = 0;
+    [...list].forEach((char, i) => {
+      if (char === '(' || char === '[') depth++;
+      if (char === ')' || char === ']') depth--;
+      if (char === ',' && !depth) { parts.push(list.slice(start, i)); start = i + 1; }
+    });
+    return [...parts, list.slice(start)].map(part => part.trim());
+  };
+  for (const [file, gate] of [['cyberpunk.css', 'html[data-xlg][data-xlg-cyber]'], ['hud.css', 'html[data-xlg][data-xlg-hud]']]) {
+    const css = extensionFile(file).replace(/\/\*[\s\S]*?\*\//g, '');
+    const preludes = css.replace(/\{[^{}]*\}/g, '\u0000').split('\u0000').map(part => part.replace(/@media[^{]*\{/g, '').replace(/\}/g, '').trim()).filter(Boolean);
+    const selectors = preludes.flatMap(topLevel);
+    assert.ok(selectors.length > 20, file);
+    for (const selector of selectors) assert.ok(selector.startsWith(gate), `Ungated selector in ${file}: ${selector}`);
+  }
+  const fallback = extensionFile('glass.css').match(/--xlg-secondary-rgb:\s*([^;]+);/)[1].trim();
+  assert.equal(fallback.replace(/\s+/g, ''), XGlow.palette(XGlow.defaults).secondary.replace(/\s+/g, ''));
+});
+
+test('popup offers the three themes in a select and keeps the accent picker', () => {
+  const html = extensionFile('popup.html');
+  const select = html.match(/<select id="theme">([\s\S]*?)<\/select>/)[1];
+  assert.deepEqual([...select.matchAll(/value="(\w+)"/g)].map(match => match[1]), [...XGlow.themes]);
+  assert.match(html, /id="colors"/);
+  assert.doesNotMatch(html, /id="cyberpunk"/);
 });
 
 test('manifest loads only local files and limits injection to X/Twitter', () => {

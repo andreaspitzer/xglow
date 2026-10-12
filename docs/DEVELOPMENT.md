@@ -58,6 +58,8 @@ The synthetic fixtures catch layout regressions without using real account conte
 
 - Theme overrides are gated by the root `data-xlg` attribute so disabling the extension restores native appearance.
 - The settings namespace is `XGlow`. The storage key `xGlass` and DOM markers `data-xlg-*` remain stable across the rebrand so existing installations retain their preferences.
+- The `theme` preference (`glass`, `cyberpunk` or `hud`) selects the look. `cyberpunk.css` and `hud.css` load after `glass.css` and are gated by `data-xlg-cyber` and `data-xlg-hud`; they reuse the glass markers and palette properties, and `settings.js` returns the matching palette. Rules that override `glass.css` repeat its selector with one more attribute. Chat's shadow-root styles follow the `data-xlg-chat-square` and `data-xlg-chat-hud` host attributes. Saved `cyberpunk: true` values migrate to `theme: 'cyberpunk'`.
+- HUD panels are chamfered with `clip-path`, which hides the border on the cut: the diagonal is painted by the `--xlg-surface` background instead. Anything that can hold search suggestions (the search field, toolbars and panels containing it) keeps square corners and `--xlg-surface-flat`, because a clip would cut its dropdown.
 - Virtualized cells keep their native position, transforms and heights. Conversation backgrounds span the relevant cells without inserting layout wrappers.
 - Fixed navigation, fullscreen image viewers and dropdowns must retain their native containing blocks. Applying a backdrop filter to the wrong ancestor can change positioning.
 - Post-detail replies keep native connection lines and flow. Glass surfaces apply to the composer and permission notices rather than each reply.

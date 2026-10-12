@@ -2,6 +2,8 @@
 globalThis.XGlow = (() => {
   const storageKey = 'xGlass';
 
+  const themes = Object.freeze(['glass', 'cyberpunk', 'hud']);
+
   const defaults = Object.freeze({
     enabled: true,
     accent: 'amber',
@@ -11,7 +13,8 @@ globalThis.XGlow = (() => {
     opacity: 0,
     cards: true,
     lite: false,
-    sidebar: false
+    sidebar: false,
+    theme: 'glass'
   });
 
   const accents = Object.freeze({
@@ -54,7 +57,9 @@ globalThis.XGlow = (() => {
       opacity: clamp(value.opacity, 0, 90, defaults.opacity),
       cards: boolean(value.cards, defaults.cards),
       lite: boolean(value.lite, defaults.lite),
-      sidebar: boolean(value.sidebar, defaults.sidebar)
+      sidebar: boolean(value.sidebar, defaults.sidebar),
+      // `cyberpunk: true` was the toggle that preceded the theme choice.
+      theme: themes.includes(value.theme) ? value.theme : value.cyberpunk === true ? 'cyberpunk' : defaults.theme
     };
   }
 
@@ -84,9 +89,92 @@ globalThis.XGlow = (() => {
     return color;
   }
 
+  /* The neon counterpart of the accent, 150° round the hue wheel: Amber pairs
+     with cyan, cyan with magenta. Greys, which have no hue, pair with magenta. */
+  function neonPartner(rgb) {
+    const [r, g, b] = rgb.map(channel => channel / 255);
+    const max = Math.max(r, g, b), spread = max - Math.min(r, g, b);
+    let hue = 180;
+    if (spread >= .1) {
+      hue = max === r ? (g - b) / spread + (g < b ? 6 : 0) : max === g ? (b - r) / spread + 2 : (r - g) / spread + 4;
+      hue *= 60;
+    }
+    hue = (hue + 150) % 360;
+    const lightness = .58, amplitude = Math.min(lightness, 1 - lightness);
+    const channel = offset => {
+      const step = (offset + hue / 30) % 12;
+      return Math.round((lightness - amplitude * Math.max(-1, Math.min(step - 3, 9 - step, 1))) * 255);
+    };
+    return [channel(0), channel(8), channel(4)];
+  }
+
+  /* Cyberpunk keeps the same keys as the glass palette. Surfaces are deep
+     violet-black (or cold white on X's light themes); glows and borders are
+     neon, with the partner color as the second light source. */
+  function cyberPalette(settings, tone, rgb, controlEnd) {
+    const strength = settings.tint / 100;
+    const light = tone === 'light';
+    const interfaceAccent = light ? readableVariant(rgb, BLACK, value => value <= .3) : controlEnd;
+    const partner = neonPartner(rgb);
+    const interfacePartner = light ? readableVariant(partner, BLACK, value => value <= .3) : partner;
+    const base = mix(light ? [246, 244, 255] : [12, 9, 22], rgb, strength * (light ? .06 : .1));
+    const background = mix(light ? [233, 230, 247] : [6, 4, 14], rgb, strength * (light ? .08 : .05));
+    return {
+      accent: rgb.join(', '),
+      hex: toHex(rgb),
+      interfaceAccent: interfaceAccent.join(', '),
+      interfaceHex: toHex(interfaceAccent),
+      secondary: interfacePartner.join(', '),
+      controlEnd: controlEnd.join(', '),
+      controlStart: controlEnd.join(', '),
+      base: base.join(', '),
+      background: `rgb(${background.join(', ')})`,
+      glowSecondary: partner.join(', '),
+      glowTertiary: partner.join(', '),
+      glowOpacity: String(strength * (light ? .16 : .3)),
+      glowSecondaryOpacity: String(strength * (light ? .12 : .24)),
+      glowTertiaryOpacity: '0',
+      border: `rgba(${interfaceAccent.join(', ')}, ${light ? .65 : .5})`
+    };
+  }
+
+  const HUD_RED = [255, 92, 82], HUD_CYAN = [94, 242, 255];
+  const HUD_RED_LIGHT = [196, 28, 40], HUD_TEAL_LIGHT = [0, 122, 142];
+
+  /* The HUD theme ignores the accent: it is a fixed palette of alarm red for
+     the interface and cyan for whatever is active, over dark maroon with an
+     indigo glow. X's light themes get deep red and teal on blush white. */
+  function hudPalette(settings, tone) {
+    const strength = settings.tint / 100;
+    const light = tone === 'light';
+    const red = light ? HUD_RED_LIGHT : HUD_RED;
+    const cyan = light ? HUD_TEAL_LIGHT : HUD_CYAN;
+    const base = mix(light ? [255, 246, 246] : [26, 9, 14], red, strength * (light ? .04 : .07));
+    const background = mix(light ? [244, 232, 234] : [13, 6, 10], red, strength * (light ? .06 : .05));
+    const indigo = light ? [120, 112, 210] : [66, 58, 180];
+    return {
+      accent: red.join(', '),
+      hex: toHex(red),
+      interfaceAccent: red.join(', '),
+      interfaceHex: toHex(red),
+      secondary: cyan.join(', '),
+      controlEnd: cyan.join(', '),
+      controlStart: cyan.join(', '),
+      base: base.join(', '),
+      background: `rgb(${background.join(', ')})`,
+      glowSecondary: indigo.join(', '),
+      glowTertiary: indigo.join(', '),
+      glowOpacity: String(strength * (light ? .16 : .55)),
+      glowSecondaryOpacity: String(strength * (light ? .12 : .42)),
+      glowTertiaryOpacity: '0',
+      border: `rgba(${red.join(', ')}, ${light ? .6 : .62})`
+    };
+  }
+
   /* Derives every themed color from the accent, tint and X's own tone. */
   function palette(value, tone = 'dark') {
     const settings = normalize(value);
+    if (settings.theme === 'hud') return hudPalette(settings, tone);
     const rgb = accentChannels(settings);
     const strength = settings.tint / 100;
     const light = tone === 'light';
@@ -94,6 +182,7 @@ globalThis.XGlow = (() => {
     const background = mix(light ? [238, 242, 246] : [8, 10, 14], rgb, strength * (light ? .16 : .09));
     // Primary buttons render dark text on the accent gradient.
     const controlEnd = readableVariant(rgb, WHITE, value => value >= .25);
+    if (settings.theme === 'cyberpunk') return cyberPalette(settings, tone, rgb, controlEnd);
     // Accents used as text or outlines must contrast with the page.
     const interfaceAccent = light ? readableVariant(rgb, BLACK, value => value <= .3) : controlEnd;
     return {
@@ -101,6 +190,7 @@ globalThis.XGlow = (() => {
       hex: toHex(rgb),
       interfaceAccent: interfaceAccent.join(', '),
       interfaceHex: toHex(interfaceAccent),
+      secondary: neonPartner(rgb).join(', '),
       controlEnd: controlEnd.join(', '),
       controlStart: controlEnd.map(channel => Math.round(channel * .55 + 255 * .45)).join(', '),
       base: base.join(', '),
@@ -114,5 +204,5 @@ globalThis.XGlow = (() => {
     };
   }
 
-  return { storageKey, defaults, accents, normalize, colorHex, palette };
+  return { storageKey, defaults, accents, themes, normalize, colorHex, palette };
 })();

@@ -17,7 +17,7 @@
   const status = $('status');
   const hexInput = $('customHex');
   const swatches = [...document.querySelectorAll('[data-accent]')];
-  const controls = [...document.querySelectorAll('input, button')];
+  const controls = [...document.querySelectorAll('input, button, select')];
   let settings = XGlow.normalize();
   let queue = Promise.resolve();
 
@@ -40,6 +40,10 @@
     $('customColor').value = settings.customColor;
     hexInput.value = settings.customColor;
     hexInput.removeAttribute('aria-invalid');
+    $('theme').value = settings.theme;
+    document.documentElement.dataset.theme = settings.theme;
+    $('colors').hidden = settings.theme === 'hud';
+    $('hudNote').hidden = settings.theme !== 'hud';
     document.documentElement.style.setProperty('--accent', XGlow.palette(settings).interfaceHex);
     for (const button of swatches) {
       button.setAttribute('aria-pressed', String(button.dataset.accent === settings.accent));
@@ -77,6 +81,7 @@
       save({ [id]: type === 'checkbox' ? checked : Number(value) });
     });
   }
+  $('theme').addEventListener('input', event => save({ theme: event.target.value }));
   for (const button of swatches) button.addEventListener('click', () => save({ accent: button.dataset.accent }));
   $('customColor').addEventListener('input', event => save({ accent: 'custom', customColor: event.target.value }));
   hexInput.addEventListener('change', saveHex);

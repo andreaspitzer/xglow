@@ -1,0 +1,159 @@
+/* X Cyberpunk: an alternative look, loaded after glass.css.
+ *
+ * Active only under html[data-xlg][data-xlg-cyber]. It reuses the markers and
+ * palette properties of glass.css (content.js swaps in the neon palette), so
+ * most surfaces change through tokens alone; the rules below replace what
+ * tokens cannot reach: the canvas, corner brackets, square edges and controls.
+ * Selectors that override a glass.css rule repeat it with one more attribute.
+ */
+
+/* ------------------------------------------------------------------ Tokens */
+
+html[data-xlg][data-xlg-cyber] {
+  --xlg-glint: rgba(var(--xlg-ui-accent-rgb), .55);
+  --xlg-shadow: rgba(var(--xlg-ui-accent-rgb), .18);
+  --xlg-hover: rgba(var(--xlg-ui-accent-rgb), .1);
+  --xlg-scan: rgba(0, 0, 0, .22);
+  --xlg-scan-surface: rgba(255, 255, 255, .02);
+  /* Glass opacity 0–90% maps onto 62–100%: the grid never runs under text. */
+  --xlg-cyber-alpha: calc(.62 + var(--xlg-opacity) * .4222);
+  --xlg-bracket-a: rgb(var(--xlg-ui-accent-rgb));
+  --xlg-bracket-b: rgb(var(--xlg-secondary-rgb));
+  --xlg-surface:
+    linear-gradient(var(--xlg-bracket-a), var(--xlg-bracket-a)) top left / 14px 2px no-repeat,
+    linear-gradient(var(--xlg-bracket-a), var(--xlg-bracket-a)) top left / 2px 14px no-repeat,
+    linear-gradient(var(--xlg-bracket-b), var(--xlg-bracket-b)) bottom right / 14px 2px no-repeat,
+    linear-gradient(var(--xlg-bracket-b), var(--xlg-bracket-b)) bottom right / 2px 14px no-repeat,
+    linear-gradient(135deg, rgba(var(--xlg-ui-accent-rgb), .08), transparent 42%),
+    repeating-linear-gradient(0deg, var(--xlg-scan-surface) 0 1px, transparent 1px 3px),
+    rgba(var(--xlg-base), var(--xlg-cyber-alpha));
+  scrollbar-color: rgba(var(--xlg-ui-accent-rgb), .65) transparent;
+}
+html[data-xlg][data-xlg-cyber][data-xlg-lite] {
+  --xlg-cyber-alpha: .9;
+}
+html[data-xlg][data-xlg-cyber][data-xlg-tone="light"] {
+  --xlg-glint: rgba(var(--xlg-ui-accent-rgb), .35);
+  --xlg-shadow: rgba(var(--xlg-ui-accent-rgb), .14);
+  --xlg-hover: rgba(var(--xlg-ui-accent-rgb), .08);
+  --xlg-scan: rgba(20, 10, 60, .035);
+  --xlg-scan-surface: rgba(20, 10, 60, .025);
+}
+
+/* ------------------------------------------------------------------ Canvas */
+
+/* Two neon light sources, a fixed HUD grid and faint scanlines. */
+html[data-xlg][data-xlg-cyber] {
+  background-image:
+    radial-gradient(ellipse at 4% 0%, rgba(var(--xlg-accent-rgb), var(--xlg-glow-opacity)), transparent 46%),
+    radial-gradient(ellipse at 100% 100%, rgba(var(--xlg-glow-secondary-rgb), var(--xlg-glow-secondary-opacity)), transparent 48%),
+    linear-gradient(rgba(var(--xlg-ui-accent-rgb), .06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--xlg-ui-accent-rgb), .06) 1px, transparent 1px),
+    repeating-linear-gradient(0deg, var(--xlg-scan) 0 1px, transparent 1px 3px) !important;
+  background-size: 100vw 100vh, 100vw 100vh, 56px 56px, 56px 56px, auto !important;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat !important;
+}
+html[data-xlg][data-xlg-cyber] ::selection {
+  background: rgba(var(--xlg-secondary-rgb), .45);
+}
+
+/* ------------------------------------------------------------ Square edges */
+
+html[data-xlg][data-xlg-cyber] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-new-posts], [data-testid="Dropdown"]),
+html[data-xlg][data-xlg-cyber] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-cyber][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)),
+html[data-xlg][data-xlg-cyber][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]::before,
+html[data-xlg][data-xlg-cyber] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(article a) {
+  border-radius: 0 !important;
+}
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"] {
+  border-radius: 0;
+}
+
+/* Lightweight mode paints its own opaque surfaces; keep the brackets. */
+html[data-xlg][data-xlg-cyber][data-xlg-lite] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-cyber][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-testid="Dropdown"]),
+html[data-xlg][data-xlg-cyber][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
+  background: var(--xlg-surface) !important;
+}
+html[data-xlg][data-xlg-cyber][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]::before {
+  background: var(--xlg-surface);
+}
+
+/* -------------------------------------------------------------- Post cards */
+
+html[data-xlg][data-xlg-cyber][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)):hover {
+  border-color: rgba(var(--xlg-secondary-rgb), .85) !important;
+  box-shadow: inset 0 1px 0 var(--xlg-glint), 0 0 22px rgba(var(--xlg-secondary-rgb), .22) !important;
+}
+
+/* --------------------------------------------------------- Navigation rail */
+
+html[data-xlg][data-xlg-cyber] header nav :is(a, button) > div {
+  border-radius: 2px !important;
+}
+html[data-xlg][data-xlg-cyber] header nav :is(a, button):hover > div {
+  box-shadow: inset 0 0 0 1px var(--xlg-border);
+}
+html[data-xlg][data-xlg-cyber] header nav a:is([aria-current="page"], [data-xlg-nav-current]) > div {
+  background: linear-gradient(90deg, rgba(var(--xlg-ui-accent-rgb), .24), rgba(var(--xlg-ui-accent-rgb), .04)) !important;
+  box-shadow: inset 3px 0 0 var(--xlg-accent), 0 0 18px rgba(var(--xlg-ui-accent-rgb), .18);
+}
+html[data-xlg][data-xlg-cyber] header nav a:is([aria-current="page"], [data-xlg-nav-current]) :is(span, svg) {
+  filter: drop-shadow(0 0 5px rgba(var(--xlg-ui-accent-rgb), .75));
+}
+
+/* --------------------------------------------------------- Primary buttons */
+
+/* A flat neon slab with a hard offset in the partner color. */
+html[data-xlg][data-xlg-cyber] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) {
+  background: rgb(var(--xlg-control-end-rgb)) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 rgb(var(--xlg-secondary-rgb)), 0 0 22px rgba(var(--xlg-ui-accent-rgb), .4) !important;
+}
+html[data-xlg][data-xlg-cyber] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) :is(div, span) {
+  font-weight: 800 !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------- Column header */
+
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"],
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"] :is(span, div) {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"][aria-selected="true"] {
+  background: linear-gradient(0deg, rgba(var(--xlg-ui-accent-rgb), .2), transparent 70%) !important;
+  box-shadow: inset 0 -2px 0 var(--xlg-accent);
+}
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"][aria-selected="true"],
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"][aria-selected="true"] :is(span, div) {
+  text-shadow: 0 0 10px rgba(var(--xlg-ui-accent-rgb), .8);
+}
+
+/* ------------------------------------------------------------------ Search */
+
+html[data-xlg][data-xlg-cyber] [data-xlg-search]:focus-within {
+  border-color: rgba(var(--xlg-secondary-rgb), .9) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--xlg-secondary-rgb), .35), 0 0 16px rgba(var(--xlg-secondary-rgb), .3) !important;
+}
+
+/* ------------------------------------------------------------------- Focus */
+
+html[data-xlg][data-xlg-cyber] :is(a, button, [role="tab"], [role="button"], input):focus-visible {
+  outline-color: rgb(var(--xlg-secondary-rgb)) !important;
+  outline-offset: 2px !important;
+}
+
+/* ------------------------------------------------------------ Media queries */
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-xlg][data-xlg-cyber] [data-xlg-toolbar] [role="tab"],
+  html[data-xlg][data-xlg-cyber] header nav :is(a, button) > div {
+    transition: background .12s steps(3), box-shadow .12s steps(3);
+  }
+}

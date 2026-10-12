@@ -30,7 +30,9 @@
         "https://www.twitter.com/*"
       ],
       "css": [
-        "glass.css"
+        "glass.css",
+        "cyberpunk.css",
+        "hud.css"
       ],
       "js": [
         "settings.js",

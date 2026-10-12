@@ -1,0 +1,251 @@
+/* X HUD: a diegetic-interface look after Cyberpunk 2077, loaded after
+ * glass.css and cyberpunk.css.
+ *
+ * Active only under html[data-xlg][data-xlg-hud]. Alarm red frames the
+ * interface and cyan marks whatever is active or primary, over dark maroon.
+ * content.js supplies the fixed HUD palette through the shared custom
+ * properties; the rules below add what tokens cannot: the chamfered panel
+ * shape, the viewfinder canvas, condensed type and the controls.
+ * Selectors that override a glass.css rule repeat it with one more attribute.
+ */
+
+/* ------------------------------------------------------------------ Tokens */
+
+html[data-xlg][data-xlg-hud] {
+  --xlg-cut: 14px;
+  --xlg-red: rgb(var(--xlg-ui-accent-rgb));
+  --xlg-cyan: rgb(var(--xlg-secondary-rgb));
+  --xlg-glint: rgba(var(--xlg-ui-accent-rgb), .22);
+  --xlg-shadow: rgba(var(--xlg-ui-accent-rgb), .2);
+  --xlg-hover: rgba(var(--xlg-ui-accent-rgb), .12);
+  --xlg-scan: rgba(0, 0, 0, .24);
+  --xlg-hud-text: #ffe1dc;
+  --xlg-hud-label: rgb(255, 128, 118);
+  --xlg-hud-on-control: #04161b;
+  /* Glass opacity 0–90% maps onto 70–100%. */
+  --xlg-hud-alpha: calc(.7 + var(--xlg-opacity) * .3333);
+  /* Panels lose their top-left and bottom-right corners. clip-path would hide
+     the border there, so a diagonal line is painted on each cut instead. */
+  --xlg-clip: polygon(var(--xlg-cut) 0, 100% 0, 100% calc(100% - var(--xlg-cut)), calc(100% - var(--xlg-cut)) 100%, 0 100%, 0 var(--xlg-cut));
+  --xlg-edge-in: calc(var(--xlg-cut) * .7071 - .5px);
+  --xlg-edge-out: calc(var(--xlg-cut) * .7071 + 1.5px);
+  --xlg-edge-stops: transparent var(--xlg-edge-in), var(--xlg-red) var(--xlg-edge-in) var(--xlg-edge-out), transparent var(--xlg-edge-out);
+  --xlg-corner: calc(var(--xlg-cut) + 4px);
+  /* For elements that keep square corners (they must not clip popups). */
+  --xlg-surface-flat:
+    linear-gradient(135deg, rgba(var(--xlg-ui-accent-rgb), .09), transparent 40%),
+    rgba(var(--xlg-base), var(--xlg-hud-alpha));
+  --xlg-surface:
+    linear-gradient(135deg, var(--xlg-edge-stops)) top left / var(--xlg-corner) var(--xlg-corner) no-repeat border-box,
+    linear-gradient(to top left, var(--xlg-edge-stops)) bottom right / var(--xlg-corner) var(--xlg-corner) no-repeat border-box,
+    var(--xlg-surface-flat);
+  scrollbar-color: rgba(var(--xlg-ui-accent-rgb), .7) transparent;
+}
+html[data-xlg][data-xlg-hud][data-xlg-lite] {
+  --xlg-hud-alpha: .92;
+}
+html[data-xlg][data-xlg-hud][data-xlg-tone="light"] {
+  --xlg-glint: rgba(var(--xlg-ui-accent-rgb), .18);
+  --xlg-shadow: rgba(var(--xlg-ui-accent-rgb), .14);
+  --xlg-hover: rgba(var(--xlg-ui-accent-rgb), .08);
+  --xlg-scan: rgba(120, 20, 30, .035);
+  --xlg-hud-text: #3a0d12;
+  --xlg-hud-label: rgb(168, 22, 34);
+  --xlg-hud-on-control: #fff;
+}
+
+/* ------------------------------------------------------------------ Canvas */
+
+/* Red glow from above, indigo from below, a faint dot matrix and scanlines. */
+html[data-xlg][data-xlg-hud] {
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -10%, rgba(var(--xlg-accent-rgb), var(--xlg-glow-opacity)), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 50% 115%, rgba(var(--xlg-glow-secondary-rgb), var(--xlg-glow-secondary-opacity)), transparent 70%),
+    radial-gradient(rgba(var(--xlg-ui-accent-rgb), .22) 1px, transparent 1.5px),
+    repeating-linear-gradient(0deg, var(--xlg-scan) 0 1px, transparent 1px 4px) !important;
+  background-size: 100vw 100vh, 100vw 100vh, 24px 24px, auto !important;
+  background-repeat: no-repeat, no-repeat, repeat, repeat !important;
+}
+html[data-xlg][data-xlg-hud] ::selection {
+  background: rgb(var(--xlg-secondary-rgb));
+  color: var(--xlg-hud-on-control);
+}
+
+/* A viewfinder frame at the window edge, and a vertical readout. Both ignore
+   the pointer and sit at the extreme edges, clear of X's own layout. */
+html[data-xlg][data-xlg-hud]::before {
+  content: "";
+  position: fixed;
+  inset: 8px;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: .7;
+  background:
+    linear-gradient(var(--xlg-red), var(--xlg-red)) top left / 26px 2px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) top left / 2px 26px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) top right / 26px 2px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) top right / 2px 26px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) bottom left / 26px 2px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) bottom left / 2px 26px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) bottom right / 26px 2px no-repeat,
+    linear-gradient(var(--xlg-red), var(--xlg-red)) bottom right / 2px 26px no-repeat;
+}
+html[data-xlg][data-xlg-hud]::after {
+  content: "CONNECTION 201.89.43 // X.COM";
+  position: fixed;
+  left: 3px;
+  top: 50%;
+  z-index: 2147483000;
+  pointer-events: none;
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  color: rgba(var(--xlg-ui-accent-rgb), .6);
+  font: 9px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: .3em;
+}
+
+/* -------------------------------------------------------------- Typography */
+
+html[data-xlg][data-xlg-hud] body :where(span, div, a, button, input, textarea, h1, h2, h3, p, label, time, li) {
+  font-family: "Rajdhani", "Bahnschrift", "DIN Alternate", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif !important;
+}
+html[data-xlg][data-xlg-hud] [data-testid="tweetText"],
+html[data-xlg][data-xlg-hud] [data-testid="tweetText"] > span {
+  color: var(--xlg-hud-text) !important;
+}
+/* Display names are the speaker color, as in the game's dialogue. */
+html[data-xlg][data-xlg-hud] [data-testid="User-Name"] > div:first-child :is(span, a) {
+  color: var(--xlg-cyan) !important;
+}
+
+/* ------------------------------------------------------------ Panel shapes */
+
+html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-new-posts], [data-testid="Dropdown"]),
+html[data-xlg][data-xlg-hud] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)),
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]::before,
+html[data-xlg][data-xlg-hud] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(article a) {
+  border-radius: 0 !important;
+}
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"] {
+  border-radius: 0;
+}
+
+/* Chamfered panels. Surfaces that hold search suggestions keep square
+   corners instead: a clip would cut their dropdown. */
+html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-testid="Dropdown"]):not(:has([data-xlg-search-form])),
+html[data-xlg][data-xlg-hud] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)),
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]:not([data-xlg-conversation^="open"]):not([data-xlg-conversation$="open"])::before {
+  clip-path: var(--xlg-clip);
+}
+html[data-xlg][data-xlg-hud] [data-xlg-search],
+html[data-xlg][data-xlg-hud] :is([data-xlg-toolbar], [data-xlg-panel]):has([data-xlg-search-form]),
+/* Conversation edges that continue into virtualized cells are not chamfered. */
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) :is([data-xlg-conversation^="open"], [data-xlg-conversation$="open"])::before {
+  background: var(--xlg-surface-flat) !important;
+}
+/* Lightweight mode paints its own opaque surfaces; keep the chamfers. */
+html[data-xlg][data-xlg-hud][data-xlg-lite] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-hud][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-testid="Dropdown"]):not(:has([data-xlg-search-form])),
+html[data-xlg][data-xlg-hud][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
+  background: var(--xlg-surface) !important;
+}
+html[data-xlg][data-xlg-hud][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]:not([data-xlg-conversation^="open"]):not([data-xlg-conversation$="open"])::before {
+  background: var(--xlg-surface);
+}
+
+/* -------------------------------------------------------------- Post cards */
+
+html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)):hover {
+  border-color: var(--xlg-red) !important;
+  box-shadow: inset 0 0 28px rgba(var(--xlg-ui-accent-rgb), .18) !important;
+}
+
+/* --------------------------------------------------------- Navigation rail */
+
+html[data-xlg][data-xlg-hud] header nav :is(a, button) > div {
+  border-radius: 0 !important;
+}
+html[data-xlg][data-xlg-hud] header nav :is(a, button) :is(span, svg):not([aria-live] *) {
+  color: var(--xlg-hud-label) !important;
+}
+html[data-xlg][data-xlg-hud] header nav :is(a, button):hover > div {
+  box-shadow: inset 0 0 0 1px var(--xlg-border);
+}
+html[data-xlg][data-xlg-hud] header nav a:is([aria-current="page"], [data-xlg-nav-current]) > div {
+  background: linear-gradient(90deg, rgba(var(--xlg-secondary-rgb), .22), rgba(var(--xlg-secondary-rgb), .03)) !important;
+  box-shadow: inset 3px 0 0 var(--xlg-cyan), inset 0 0 0 1px rgba(var(--xlg-secondary-rgb), .35);
+}
+html[data-xlg][data-xlg-hud] header nav a:is([aria-current="page"], [data-xlg-nav-current]) :is(span, svg):not([aria-live] *) {
+  color: var(--xlg-cyan) !important;
+  text-shadow: 0 0 10px rgba(var(--xlg-secondary-rgb), .7);
+}
+
+/* --------------------------------------------------------- Primary buttons */
+
+/* A cyan slab with two cut corners and a red bar, like an enabled switch. */
+html[data-xlg][data-xlg-hud] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) {
+  background: linear-gradient(var(--xlg-red), var(--xlg-red)) left / 3px 100% no-repeat, var(--xlg-cyan) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+html[data-xlg][data-xlg-hud] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]):hover {
+  filter: brightness(1.12);
+}
+html[data-xlg][data-xlg-hud] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) :is(div, span) {
+  color: var(--xlg-hud-on-control) !important;
+  font-weight: 700 !important;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------- Column header */
+
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar] [role="tab"],
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar] [role="tab"] :is(span, div) {
+  color: var(--xlg-hud-label) !important;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar] [role="tab"][aria-selected="true"] {
+  background: linear-gradient(0deg, rgba(var(--xlg-secondary-rgb), .2), transparent 75%) !important;
+  box-shadow: inset 0 -2px 0 var(--xlg-cyan);
+}
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar] [role="tab"][aria-selected="true"],
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar] [role="tab"][aria-selected="true"] :is(span, div) {
+  color: var(--xlg-cyan) !important;
+  text-shadow: 0 0 10px rgba(var(--xlg-secondary-rgb), .75);
+}
+
+/* ------------------------------------------------------------------ Search */
+
+html[data-xlg][data-xlg-hud] [data-xlg-search]:focus-within {
+  border-color: var(--xlg-cyan) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--xlg-secondary-rgb), .4), 0 0 14px rgba(var(--xlg-secondary-rgb), .3) !important;
+}
+
+/* ------------------------------------------------------------------- Focus */
+
+html[data-xlg][data-xlg-hud] :is(a, button, [role="tab"], [role="button"], input):focus-visible {
+  outline-color: var(--xlg-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+/* ------------------------------------------------------------ Media queries */
+
+@media (max-width: 1000px) {
+  html[data-xlg][data-xlg-hud]::after {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  html[data-xlg][data-xlg-hud] {
+    --xlg-cut: 10px;
+  }
+  html[data-xlg][data-xlg-hud]::before {
+    inset: 4px;
+  }
+}

@@ -6,6 +6,7 @@ A liquid glass makeover for X. Same feed, a more personal look.
 
 - **Glass throughout X.** Translucent cards, soft reflections and rounded surfaces across the feed, notifications, profile covers and Chat.
 - **Your colors, your atmosphere.** Seven presets or any HEX color, with adjustable tint, blur and opacity. Changes apply instantly.
+- **Three themes, one dropdown.** Liquid Glass, Cyberpunk Neon (grid, scanlines and corner brackets, with your accent plus a derived partner color) and Cyberpunk HUD (alarm red and cyan, chamfered panels and a viewfinder frame, after the game's interface). HUD has its own fixed palette.
 - **A focused, centered feed.** Hide the right sidebar and give your timeline room to breathe. Bring it back with one toggle.
 - **Threads stay connected.** Related posts share a glass frame; post-detail replies keep X’s familiar flow and connection lines.
 - **Light or dark.** Follows X’s appearance, with a lightweight mode and reduced-motion support.

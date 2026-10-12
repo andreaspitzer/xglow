@@ -178,7 +178,85 @@ footer button {
 footer button:hover { background: #e7e9ea0d; }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-button:disabled, input:disabled { opacity: .5; cursor: wait; }
+button:disabled, input:disabled, select:disabled { opacity: .5; cursor: wait; }
 @media (prefers-reduced-motion: reduce) {
   .switch::before { transition: none; }
 }
+
+/* Theme select */
+select {
+  flex-shrink: 0;
+  max-width: 170px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #16202a;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+select:hover { border-color: var(--accent); }
+
+/* The popup previews the theme it controls. */
+:root[data-theme="cyberpunk"] { --border: color-mix(in srgb, var(--accent) 45%, transparent); --muted: #a79cc2; background: #0b0814; }
+:root[data-theme="cyberpunk"] h1,
+:root[data-theme="cyberpunk"] legend,
+:root[data-theme="cyberpunk"] .version { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; text-transform: uppercase; letter-spacing: .06em; }
+:root[data-theme="cyberpunk"] h1 { text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent); }
+:root[data-theme="cyberpunk"] .version,
+:root[data-theme="cyberpunk"] .swatches button,
+:root[data-theme="cyberpunk"] .swatches i,
+:root[data-theme="cyberpunk"] input[type="color"],
+:root[data-theme="cyberpunk"] #customHex,
+:root[data-theme="cyberpunk"] select,
+:root[data-theme="cyberpunk"] footer button { border-radius: 0; }
+:root[data-theme="cyberpunk"] select { background: #0b0814; }
+:root[data-theme="cyberpunk"] .switch { border-radius: 2px; }
+:root[data-theme="cyberpunk"] .switch::before { border-radius: 1px; }
+:root[data-theme="cyberpunk"] .swatches button[aria-pressed="true"] { box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent); }
+:root[data-theme="cyberpunk"] .switch:checked { box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent); }
+
+/* HUD: alarm red chrome, cyan for what is active, chamfered controls. */
+:root[data-theme="hud"] {
+  --hud-cyan: #5ef2ff;
+  --border: color-mix(in srgb, var(--accent) 55%, transparent);
+  --text: #ffd9d4;
+  --muted: #c9726b;
+  background: linear-gradient(#1f0b10, #0d060b 70%, #0e0a1c);
+  font-family: "Rajdhani", "Bahnschrift", "DIN Alternate", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  font-size: 16px;
+}
+:root[data-theme="hud"] h1,
+:root[data-theme="hud"] legend,
+:root[data-theme="hud"] .version,
+:root[data-theme="hud"] footer button { text-transform: uppercase; letter-spacing: .1em; }
+:root[data-theme="hud"] h1 { color: var(--hud-cyan); text-shadow: 0 0 12px #5ef2ff80; }
+:root[data-theme="hud"] .row label,
+:root[data-theme="hud"] .slider-label { color: var(--accent); }
+:root[data-theme="hud"] .version,
+:root[data-theme="hud"] .swatches button,
+:root[data-theme="hud"] .swatches i,
+:root[data-theme="hud"] input[type="color"],
+:root[data-theme="hud"] #customHex { border-radius: 0; }
+:root[data-theme="hud"] select,
+:root[data-theme="hud"] footer button {
+  border-radius: 0;
+  border-color: var(--accent);
+  background: #14080c;
+  color: var(--hud-cyan);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+:root[data-theme="hud"] .switch {
+  width: 46px;
+  border-radius: 0;
+  border-color: var(--accent);
+  background: #14080c;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+}
+:root[data-theme="hud"] .switch::before { border-radius: 0; background: var(--accent); }
+:root[data-theme="hud"] .switch:checked { background: #14080c; }
+:root[data-theme="hud"] .switch:checked::before { transform: translateX(22px); background: var(--hud-cyan); }
+:root[data-theme="hud"] .swatches button[aria-pressed="true"] { color: var(--hud-cyan); border-color: var(--hud-cyan); }
+:root[data-theme="hud"] input[type="range"] { border-radius: 0; background: linear-gradient(to right, var(--hud-cyan) 0 var(--progress, 50%), #3a1a20 var(--progress, 50%) 100%); }
+:root[data-theme="hud"] input[type="range"]::-webkit-slider-thumb { border-radius: 0; border-color: var(--accent); background: var(--hud-cyan); }

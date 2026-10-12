@@ -22,11 +22,19 @@
       <input class="switch" id="enabled" type="checkbox" role="switch">
     </div>
     <div class="row">
+      <div><label for="theme">Theme</label><small id="themeHint">Liquid glass, cyberpunk neon or game HUD</small></div>
+      <select id="theme">
+        <option value="glass">Liquid Glass</option>
+        <option value="cyberpunk">Cyberpunk Neon</option>
+        <option value="hud">Cyberpunk HUD</option>
+      </select>
+    </div>
+    <div class="row">
       <div><label for="sidebar">Right sidebar</label><small>Trends, news and suggestions</small></div>
       <input class="switch" id="sidebar" type="checkbox" role="switch">
     </div>
 
-    <fieldset>
+    <fieldset id="colors">
       <legend>Theme color</legend>
       <div class="swatches">
         <button type="button" data-accent="aurora" aria-pressed="false"><i></i>Aurora</button>
@@ -45,6 +53,7 @@
       </div>
     </fieldset>
 
+    <p class="hint" id="hudNote" hidden>The HUD theme has its own red and cyan palette.</p>
     <div class="slider-label"><label for="tint">Tint intensity</label><output id="tintValue" for="tint"></output></div>
     <input id="tint" type="range" min="0" max="100" step="1" aria-description="How much color is added to the glass and background">
     <div class="slider-label"><label for="blur">Blur</label><output id="blurValue" for="blur"></output></div>
