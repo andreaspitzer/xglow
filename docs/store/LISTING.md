@@ -88,4 +88,6 @@ To regenerate the committed artwork, install ImageMagick and run `npm run build:
 
 Prepared locally. Not yet uploaded, submitted, reviewed or published in the Chrome Web Store. GitHub availability does not imply Store approval.
 
+The current prepared package is 0.2.3, which replaces the initial icon. If an earlier draft was uploaded, replace its package and Store images before submitting.
+
 Official references: [publish](https://developer.chrome.com/docs/webstore/publish), [images](https://developer.chrome.com/docs/webstore/images), [privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy).

@@ -6,24 +6,30 @@ const { execFileSync } = require('node:child_process');
 const { root, extension } = require('./project.cjs');
 
 const store = path.join(root, 'docs', 'store');
-const icon = fs.readFileSync(path.join(root, 'docs', 'brand', 'icon.svg'), 'utf8');
+const iconMaster = path.join(root, 'docs', 'brand', 'icon-master.png');
 fs.mkdirSync(path.join(extension, 'icons'), { recursive: true });
 fs.mkdirSync(store, { recursive: true });
 
-function render(svg, output, size) {
-  // Extension icons retain transparent padding. Store artwork is opaque RGB.
-  execFileSync('magick', ['-background', 'none', 'svg:-', ...(size ? ['-resize', `${size}x${size}`] : ['-alpha', 'off']), `${size ? 'PNG32' : 'PNG24'}:${output}`], { input: svg });
+// Find the solid artwork, ignoring near-transparent pixels from generation.
+const artworkBounds = execFileSync('magick', [iconMaster, '-alpha', 'extract', '-threshold', '10%', '-format', '%@', 'info:'], { encoding: 'utf8' }).trim();
+const normalizedIcon = execFileSync('magick', [iconMaster, '-crop', artworkBounds, '+repage', '-resize', '768x768', '-gravity', 'center', '-background', 'none', '-extent', '1024x1024', '-strip', 'PNG32:-']);
+
+function render(svg, output) {
+  execFileSync('magick', ['-background', 'none', 'svg:-', '-alpha', 'off', '-strip', `PNG24:${output}`], { input: svg });
 }
 for (const size of [16, 32, 48, 128]) {
-  render(icon, path.join(extension, 'icons', `icon-${size}.png`), size);
+  // Preserve the generated glass artwork and alpha. Give the visible mark
+  // 75% of the canvas, including the Store's 16 px padding at 128 px.
+  execFileSync('magick', ['png:-', '-resize', `${size}x${size}`, '-strip', `PNG32:${path.join(extension, 'icons', `icon-${size}.png`)}`], { input: normalizedIcon });
 }
 
-const iconContent = icon.replace(/<svg[^>]+>/, '').replace('</svg>', '');
+const iconData = normalizedIcon.toString('base64');
+const iconAt = (x, y, size) => `<image x="${x}" y="${y}" width="${size}" height="${size}" href="data:image/png;base64,${iconData}"/>`;
 const background = '#191714';
 const promo = `<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" viewBox="0 0 440 280">
 <rect width="440" height="280" fill="${background}"/>
 <circle cx="440" cy="0" r="240" fill="#f4b952" fill-opacity=".08"/>
-<g transform="translate(100 20) scale(1.85)">${iconContent}</g>
+${iconAt(100, 20, 128 * 1.85)}
 </svg>`;
 render(promo, path.join(store, 'promo-440x280.png'));
 
@@ -31,7 +37,7 @@ const marquee = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="56
 <rect width="1400" height="560" fill="${background}"/>
 <circle cx="1360" cy="20" r="640" fill="#f4b952" fill-opacity=".07"/>
 <circle cx="140" cy="560" r="450" fill="#f4b952" fill-opacity=".04"/>
-<g transform="translate(110 105) scale(2.7)">${iconContent}</g>
+${iconAt(110, 105, 128 * 2.7)}
 <text x="510" y="245" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="#fff4df">X Liquid Glass</text>
 <text x="514" y="309" font-family="Arial, sans-serif" font-size="31" fill="#c8c1b7">Glass cards. Your colors. Your feed.</text>
 ${['#97a7ff', '#5bcce8', '#48d397', '#f45c6c', '#ef9dc6', '#f4b952', '#b0c1d5'].map((color, i) => `<circle cx="${529 + i * 44}" cy="374" r="11" fill="${color}"/>`).join('')}
@@ -47,7 +53,7 @@ function screenshot({ source, title, subtitle, detail, color, footer, output }) 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="800" viewBox="0 0 1280 800">
 <rect width="1280" height="800" fill="${background}"/>
 <circle cx="1080" cy="140" r="560" fill="${color}" fill-opacity=".09"/>
-<g transform="translate(34 35) scale(.7)">${iconContent}</g>
+${iconAt(34, 35, 128 * .7)}
 <g font-family="Arial, sans-serif" fill="#f7f3eb">
 <text x="50" y="174" font-size="28" font-weight="bold">X Liquid Glass</text>
 <text x="50" y="267" font-size="48" font-weight="bold">${title}</text>

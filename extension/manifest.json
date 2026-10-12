@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Liquid Glass",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A liquid glass look for X. Local preferences, no external services.",
   "minimum_chrome_version": "111",
   "icons": {
