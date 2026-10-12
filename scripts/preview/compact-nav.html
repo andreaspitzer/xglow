@@ -1,0 +1,19 @@
+<template id="compact-nav-fixture">
+<div class="nav-inner dock-fixture" style="width:68px">
+<style>{{compactStyles}}</style>
+<div>
+<h1>
+<a href="/home" aria-label="X">{{logo}}</a>
+</h1>
+<nav aria-label="Primary">{{icons}}</nav>
+<div class="post-wrap">
+<a href="/compose/post" data-testid="SideNav_NewTweet_Button" aria-label="Post">{{postIcon}}</a>
+</div>
+</div>
+<div class="account-wrap">
+<button data-testid="SideNav_AccountSwitcher_Button" aria-label="Account">
+<div data-testid="UserAvatar-Container-demo">{{profileIcon}}</div>
+</button>
+</div>
+</div>
+</template>

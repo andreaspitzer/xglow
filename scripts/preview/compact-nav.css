@@ -1,0 +1,83 @@
+.dock-fixture {
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  padding:0
+}
+.dock-fixture>div {
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center
+}
+.dock-fixture svg {
+  width:24px;
+  height:24px;
+  fill:currentColor;
+  flex-shrink:0
+}
+.dock-fixture a,.dock-fixture button {
+  color:inherit;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.dock-fixture nav {
+  display:flex;
+  flex-direction:column;
+  width:100%
+}
+.dock-fixture nav :is(a,button) {
+  padding:4px 0;
+  border:0;
+  background:transparent
+}
+.dock-fixture nav :is(a,button)>div {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  height:50px;
+  padding:12px;
+  border-radius:30px
+}
+.dock-fixture h1 svg {
+  width:28px;
+  height:28px
+}
+.dock-fixture h1 {
+  margin:0
+}
+.dock-fixture h1 a {
+  height:56px;
+  padding:2px;
+  min-width:52px
+}
+.dock-fixture .post-wrap {
+  margin:16px 0;
+  width:90%
+}
+.dock-fixture .post-wrap a {
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  padding:0
+}
+.dock-fixture .account-wrap {
+  margin-top:auto
+}
+.dock-fixture .account-wrap button {
+  width:64px;
+  height:64px;
+  padding:12px;
+  background:transparent
+}
+.dock-fixture [data-testid^=UserAvatar-Container] {
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#99aaff30;
+  width:40px;
+  height:40px
+}

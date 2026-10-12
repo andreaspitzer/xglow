@@ -1,0 +1,600 @@
+/* X Liquid Glass.
+ *
+ * Every rule is gated by html[data-xlg]: removing the attribute restores X's
+ * native appearance. content.js marks X's elements with data-xlg-* attributes
+ * and sets the palette custom properties on the root.
+ *
+ * Several rules depend on source order between equally specific selectors
+ * (shared surface → specific surfaces → cleared backgrounds → search →
+ * lightweight mode → media queries): keep sections in this order.
+ */
+
+/* ------------------------------------------------------------------ Tokens */
+
+/* Fallbacks match the default Amber palette until content.js applies the
+   saved one. */
+html[data-xlg] {
+  --xlg-accent-rgb: 244, 185, 82;
+  --xlg-ui-accent-rgb: var(--xlg-accent-rgb);
+  --xlg-control-start-rgb: 249, 217, 160;
+  --xlg-control-end-rgb: var(--xlg-accent-rgb);
+  --xlg-blur: 0px;
+  --xlg-opacity: 0;
+  --xlg-glow-secondary-rgb: 245, 193, 103;
+  --xlg-glow-tertiary-rgb: 244, 188, 89;
+  --xlg-glow-opacity: .2;
+  --xlg-glow-secondary-opacity: .135;
+  --xlg-glow-tertiary-opacity: .12;
+  --xlg-base: 45, 40, 31;
+  --xlg-bg: #131211;
+  --xlg-border: rgba(236, 228, 212, .16);
+  --xlg-glint: rgba(255, 255, 255, .22);
+  --xlg-shadow: rgba(0, 0, 0, .23);
+  --xlg-hover: rgba(255, 255, 255, .065);
+  --xlg-accent: rgb(var(--xlg-ui-accent-rgb));
+  --xlg-surface: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,0) 48%), rgba(var(--xlg-base), var(--xlg-opacity));
+}
+html[data-xlg][data-xlg-tone="light"] {
+  --xlg-base: 255, 255, 255;
+  --xlg-bg: #eaf0f8;
+  --xlg-border: rgba(255, 255, 255, .72);
+  --xlg-glint: rgba(255, 255, 255, .95);
+  --xlg-shadow: rgba(41, 54, 98, .1);
+  --xlg-hover: rgba(98, 122, 175, .08);
+}
+
+/* ------------------------------------------------------------------ Canvas */
+
+/* The root background paints the page canvas. X gives body a viewport
+   height, so even a fixed body background disappears once body scrolls away.
+   The virtualized list changes the page height: keep gradients viewport-sized. */
+html[data-xlg] {
+  background: var(--xlg-bg) !important;
+  background-image: radial-gradient(ellipse at 8% 12%, rgba(var(--xlg-accent-rgb), var(--xlg-glow-opacity)), transparent 45%), radial-gradient(ellipse at 92% 35%, rgba(var(--xlg-glow-secondary-rgb), var(--xlg-glow-secondary-opacity)), transparent 43%), radial-gradient(ellipse at 46% 95%, rgba(var(--xlg-glow-tertiary-rgb), var(--xlg-glow-tertiary-opacity)), transparent 50%) !important;
+  background-attachment: fixed !important;
+  background-size: 100vw 100vh !important;
+  background-position: 0 0 !important;
+  background-repeat: no-repeat !important;
+}
+html[data-xlg] body {
+  background: transparent !important;
+}
+
+/* ---------------------------------------------------- Hidden right sidebar */
+
+html[data-xlg][data-xlg-hide-sidebar] [data-testid="sidebarColumn"] {
+  display: none !important;
+}
+/* Center rail + feed through layout widths, never a transform: the fixed rail
+   and media dialogs must keep their native containing blocks. X keeps
+   reserving width for both columns, and animates the rail width on route
+   changes, which would make the menu jump. */
+html[data-xlg][data-xlg-hide-sidebar] [data-xlg-layout] {
+  width: 100% !important;
+  margin-inline: 0 !important;
+  justify-content: center !important;
+}
+html[data-xlg][data-xlg-hide-sidebar] [data-xlg-layout] > header[role="banner"] {
+  flex: 0 0 var(--xlg-nav-width, 275px) !important;
+  width: var(--xlg-nav-width, 275px) !important;
+  transition: none !important;
+}
+html[data-xlg][data-xlg-hide-sidebar] [data-xlg-layout] > header[role="banner"] > div {
+  transition: none !important;
+}
+html[data-xlg][data-xlg-hide-sidebar] [data-xlg-main] {
+  flex: 0 1 600px !important;
+  width: 600px !important;
+  max-width: 600px !important;
+  min-width: 0 !important;
+}
+html[data-xlg][data-xlg-hide-sidebar] [data-xlg-main] [data-xlg-column-shell] {
+  width: 100% !important;
+  max-width: 600px !important;
+  min-width: 0 !important;
+}
+
+/* -------------------------------------------------------------- Chat route */
+
+/* Chat switches to two columns at its own 918px breakpoint; drop the unused
+   gutter so the native layout has room for it. */
+html[data-xlg][data-xlg-messages] [data-xlg-main] {
+  flex: 0 1 1120px !important;
+  width: 1120px !important;
+  max-width: 1120px !important;
+  min-width: 0 !important;
+}
+html[data-xlg][data-xlg-messages] [data-xlg-main] [data-xlg-column-shell] {
+  width: 100% !important;
+  max-width: 1120px !important;
+  min-width: 0 !important;
+  padding-inline: 0 !important;
+}
+html[data-xlg][data-xlg-messages] [data-testid="primaryColumn"] {
+  width: 100% !important;
+  max-width: 1120px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  border: 0 !important;
+}
+html[data-xlg][data-xlg-messages] [data-testid="xchatEmbedRoute"] {
+  display: block;
+  margin: 12px 10px;
+  height: calc(100dvh - 24px) !important;
+}
+
+/* ------------------------------------------------------ Glass surfaces */
+
+html[data-xlg] :is([data-testid="primaryColumn"], [data-testid="primaryColumn"] > div, [data-testid="sidebarColumn"]),
+html[data-xlg] [data-testid="primaryColumn"] > div > div:not([data-xlg-toolbar]):not([data-xlg-composer]) {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+html[data-xlg] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-testid="Dropdown"]),
+html[data-xlg] [data-xlg-nav]::before {
+  background: var(--xlg-surface) !important;
+  border: 1px solid var(--xlg-border) !important;
+  border-radius: 24px !important;
+  box-shadow: inset 0 1px 0 var(--xlg-glint), inset 0 -1px 0 rgba(255,255,255,.035), 0 12px 40px var(--xlg-shadow) !important;
+  -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
+  backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
+}
+
+/* --------------------------------------------------------- Navigation rail */
+
+html[data-xlg] [data-xlg-nav] {
+  isolation: isolate;
+}
+html[data-xlg] [data-xlg-nav] > div {
+  box-sizing: border-box !important;
+  padding: 24px !important;
+}
+/* Paint inside X's fixed shell without increasing its intrinsic width. */
+html[data-xlg] [data-xlg-nav]::before {
+  content: "";
+  position: absolute;
+  inset: 12px 8px;
+  z-index: -1;
+  pointer-events: none;
+}
+html[data-xlg] header nav :is(a, button) > div {
+  transition: background .18s ease, box-shadow .18s ease;
+}
+html[data-xlg] header nav :is(a, button):hover > div {
+  background: var(--xlg-hover) !important;
+  box-shadow: inset 0 0 0 1px var(--xlg-border), inset 0 1px 0 var(--xlg-glint);
+}
+html[data-xlg] header nav a:is([aria-current="page"], [data-xlg-nav-current]) > div {
+  background: rgba(var(--xlg-ui-accent-rgb), .15) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--xlg-ui-accent-rgb), .25);
+}
+
+/* Compact dock: the icon-only rail, detected by its measured width (also on
+   Chat at wide viewports). Its native width is preserved; every control gets
+   a full, centered 48px hit area. */
+html[data-xlg] [data-xlg-nav][data-xlg-nav-compact] > div {
+  padding: 24px 8px !important;
+  align-items: center !important;
+}
+html[data-xlg] [data-xlg-nav][data-xlg-nav-compact]::before {
+  inset: 12px 2px !important;
+  border-radius: 22px !important;
+}
+html[data-xlg] [data-xlg-nav-compact] nav {
+  width: 100% !important;
+  align-items: center !important;
+}
+html[data-xlg] [data-xlg-nav-compact] nav :is(a, button) {
+  box-sizing: border-box !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-inline: auto !important;
+}
+html[data-xlg] [data-xlg-nav-compact] nav :is(a, button) > div {
+  box-sizing: border-box !important;
+  width: 48px !important;
+  height: 48px !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* The logo link and the Post button have larger native minimum sizes. */
+html[data-xlg] [data-xlg-nav-compact] h1 {
+  width: 48px !important;
+  margin-inline: auto !important;
+}
+html[data-xlg] [data-xlg-nav-compact] h1 a {
+  box-sizing: border-box !important;
+  width: 48px !important;
+  height: 48px !important;
+  padding: 10px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+html[data-xlg] [data-xlg-nav-compact] div:has(> [data-testid="SideNav_NewTweet_Button"]) {
+  width: 100% !important;
+  align-items: center !important;
+}
+html[data-xlg] [data-xlg-nav-compact] [data-testid="SideNav_NewTweet_Button"] {
+  box-sizing: border-box !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  margin-inline: auto !important;
+  border-radius: 16px !important;
+}
+html[data-xlg] [data-xlg-nav-compact] [data-testid="SideNav_AccountSwitcher_Button"] {
+  box-sizing: border-box !important;
+  width: 48px !important;
+  height: 48px !important;
+  padding: 8px !important;
+  margin-inline: auto !important;
+  border-radius: 16px !important;
+}
+html[data-xlg] [data-xlg-nav-compact] [data-testid="SideNav_AccountSwitcher_Button"] [data-testid^="UserAvatar-Container-"] {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* --------------------------------------------------------- Primary buttons */
+
+html[data-xlg] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) {
+  background: linear-gradient(135deg, rgb(var(--xlg-control-start-rgb)), rgb(var(--xlg-control-end-rgb))) !important;
+  border: 1px solid rgba(255,255,255,.55) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 4px 24px rgba(var(--xlg-ui-accent-rgb), .22) !important;
+}
+html[data-xlg] :is([data-testid="SideNav_NewTweet_Button"], [data-testid="tweetButtonInline"], [data-testid="tweetButton"]) :is(div, span) {
+  color: #111b33 !important;
+}
+
+/* ---------------------------------------------------------- Column header */
+
+html[data-xlg] [data-xlg-toolbar] {
+  top: 12px !important;
+  margin: 12px 10px !important;
+  border: 0 !important;
+  border-radius: 20px !important;
+  box-shadow: inset 0 0 0 1px var(--xlg-border), inset 0 1px 0 var(--xlg-glint), 0 8px 28px var(--xlg-shadow) !important;
+  overflow: clip;
+}
+html[data-xlg] [data-xlg-toolbar] > div {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-color: transparent !important;
+}
+html[data-xlg] [data-xlg-toolbar] [role="tab"] {
+  transition: background .18s ease;
+}
+html[data-xlg] [data-xlg-toolbar] [role="tab"]:hover {
+  background: var(--xlg-hover) !important;
+}
+html[data-xlg] [data-xlg-toolbar] [role="tab"][aria-selected="true"] {
+  background: rgba(var(--xlg-ui-accent-rgb), .13) !important;
+}
+
+/* ---------------------------------------------------------------- Composer */
+
+html[data-xlg] [data-xlg-composer] {
+  margin: 8px 10px 12px !important;
+  padding: 0 !important;
+}
+/* The inline reply has no inner padding of its own, unlike the Home composer. */
+html[data-xlg] [data-xlg-composer][data-xlg-reply-composer] {
+  box-sizing: border-box !important;
+  padding: 8px !important;
+}
+
+/* --------------------------------------------------- Cleared native colors */
+
+html[data-xlg] [data-xlg-clear] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+/* Timeline posts drop the native separators; connected posts (with a
+   .r-m5arl1 connector) keep them. */
+html[data-xlg]:not([data-xlg-thread]) [data-xlg-cell-shell]:not(:has(.r-m5arl1)) {
+  border-color: transparent !important;
+}
+/* Utility rows such as "Show N posts" draw the separator on their direct
+   wrapper too. Clear it while keeping their height and hit area. */
+html[data-xlg]:not([data-xlg-thread]) [data-testid="primaryColumn"] [data-testid="cellInnerDiv"]:not(:has(.r-m5arl1)),
+html[data-xlg]:not([data-xlg-thread]) [data-testid="primaryColumn"] [data-testid="cellInnerDiv"]:not(:has(.r-m5arl1)) > div {
+  border-color: transparent !important;
+}
+
+/* -------------------------------------------------------- Show new posts */
+
+/* Inset the interactive surface without changing the virtualized row height. */
+html[data-xlg] [data-xlg-new-posts] {
+  box-sizing: border-box !important;
+  width: calc(100% - 20px) !important;
+  margin-inline: 10px !important;
+  border-radius: 16px !important;
+  background: transparent !important;
+  transition: background-color .15s ease;
+}
+html[data-xlg] [data-xlg-new-posts]:is(:hover, :focus-visible) {
+  background: var(--xlg-hover) !important;
+}
+
+/* ------------------------------------------------------------- Post cards */
+
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
+  background: var(--xlg-surface) !important;
+  border: 1px solid var(--xlg-border) !important;
+  border-radius: 22px !important;
+  margin: 6px 10px 10px !important;
+  padding: 18px 16px !important;
+  box-shadow: inset 0 1px 0 var(--xlg-glint), 0 6px 24px var(--xlg-shadow) !important;
+  -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(135%) !important;
+  backdrop-filter: blur(var(--xlg-blur)) saturate(135%) !important;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)):hover {
+  border-color: rgba(var(--xlg-ui-accent-rgb), .38) !important;
+}
+/* Connected posts and every post on a post page stay flat: no card surface
+   behind X's native reply connector. */
+html[data-xlg] [data-testid="primaryColumn"] article[data-testid="tweet"]:has(.r-m5arl1),
+html[data-xlg][data-xlg-thread] [data-testid="primaryColumn"] article[data-testid="tweet"] {
+  background: transparent !important;
+}
+
+/* ----------------------------------------------- Timeline conversations */
+
+/* A connected sequence shares one surface, painted by its first mounted cell
+   (see content.js). The other cells keep the native connector geometry. */
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-connected] [data-xlg-cell-shell] {
+  border-color: transparent !important;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-connected] article[data-testid="tweet"] {
+  padding-inline: 26px !important;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-group-start] article[data-testid="tweet"] {
+  padding-top: 6px !important;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-group-end] article[data-testid="tweet"] {
+  padding-bottom: 8px !important;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation] {
+  position: relative;
+  isolation: isolate;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  left: 10px;
+  right: 10px;
+  top: 6px;
+  height: calc(var(--xlg-conversation-height) - 14px);
+  box-sizing: border-box;
+  border: 1px solid var(--xlg-border);
+  border-radius: 22px;
+  background: var(--xlg-surface);
+  box-shadow: inset 0 1px 0 var(--xlg-glint), 0 6px 24px var(--xlg-shadow);
+  -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(135%);
+  backdrop-filter: blur(var(--xlg-blur)) saturate(135%);
+}
+/* Open edges continue into cells that are virtualized out of view. */
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation^="open"]::before {
+  top: 0;
+  height: calc(var(--xlg-conversation-height) - 8px);
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation$="open"]::before {
+  height: calc(var(--xlg-conversation-height) - 6px);
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation="open-open"]::before {
+  height: var(--xlg-conversation-height);
+}
+
+/* --------------------------------------------------------------- Post page */
+
+/* The opened post keeps the native flow under the header; content.js only
+   corrects X's initial scroll anchor. */
+html[data-xlg][data-xlg-thread] [data-testid="primaryColumn"] article[data-xlg-focused] {
+  margin-top: 0 !important;
+}
+/* Inline notice about who can reply to the opened post. */
+html[data-xlg] [data-xlg-focused] [data-xlg-reply-notice] {
+  box-sizing: border-box !important;
+  margin: 12px 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+}
+html[data-xlg] [data-xlg-reply-notice] [dir="ltr"] {
+  color: inherit !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+html[data-xlg] [data-xlg-reply-notice] svg[data-testid="icon"] {
+  color: var(--xlg-accent) !important;
+}
+
+/* ----------------------------------------------------------------- Sidebar */
+
+html[data-xlg] [data-xlg-panel] {
+  margin-bottom: 16px !important;
+}
+
+/* ------------------------------------------------------------------ Search */
+
+html[data-xlg] [data-xlg-search] {
+  border-radius: 999px !important;
+}
+/* X swaps a 1px border + 1px padding for a 2px border on focus. Keep the
+   same total inset in both states, without resizing the native input shell. */
+html[data-xlg] [data-xlg-search-field] {
+  border-width: 2px !important;
+  padding: 0 !important;
+}
+html[data-xlg] [data-xlg-search] > div,
+html[data-xlg] [data-xlg-search] > div > div {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+html[data-xlg] [data-testid="SearchBox_Search_Input"] {
+  background: transparent !important;
+}
+html[data-xlg] [data-xlg-search-form] [data-testid="SearchBox_Search_Input"]:focus-visible {
+  outline: none !important;
+}
+html[data-xlg] [data-xlg-search]:focus-within {
+  border-color: rgba(var(--xlg-ui-accent-rgb), .8) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--xlg-ui-accent-rgb), .3), 0 0 0 3px rgba(var(--xlg-ui-accent-rgb), .12) !important;
+}
+/* Suggestions are absolutely positioned inside the header's search form and
+   extend below it: the header must not clip them, so the rounded clipping
+   moves to its outer tabs. */
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) {
+  overflow: visible !important;
+}
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:first-child {
+  border-bottom-left-radius: 20px;
+}
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:last-child {
+  border-bottom-right-radius: 20px;
+}
+/* Kept nearly opaque so suggestions stay readable at any glass opacity. */
+html[data-xlg] [data-xlg-search-popup] {
+  background: linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .94) !important;
+  border: 1px solid var(--xlg-border) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 var(--xlg-glint), 0 12px 40px var(--xlg-shadow) !important;
+  -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
+  backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
+  z-index: 5 !important;
+}
+html[data-xlg][data-xlg-lite] [data-xlg-search-popup] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* Search relevance feedback: drop its opaque strip and decorative pointer. */
+html[data-xlg] [data-xlg-search-feedback] {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+html[data-xlg] [data-xlg-search-feedback]::before,
+html[data-xlg] [data-xlg-search-feedback]::after {
+  content: none !important;
+}
+
+/* ----------------------------------------------------------- Profile cover */
+
+/* Aligned with the header and cards. X keeps the 3:1 image sizing and the
+   avatar overlap; only the cover link is clipped. */
+html[data-xlg] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(article a) {
+  margin-inline: 10px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  box-shadow: 0 8px 28px var(--xlg-shadow);
+}
+html[data-xlg] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(article a)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  border: 1px solid var(--xlg-border);
+  border-radius: inherit;
+}
+
+/* ------------------------------------------------------------------- Menus */
+
+html[data-xlg] [data-testid="Dropdown"] {
+  overflow: hidden;
+}
+html[data-xlg] [data-testid="Dropdown"] [role="menuitem"] {
+  background: transparent !important;
+}
+html[data-xlg] [data-testid="Dropdown"] [role="menuitem"]:hover {
+  background: var(--xlg-hover) !important;
+}
+
+/* ------------------------------------------------------------------- Focus */
+
+html[data-xlg] :is(a, button, [role="tab"], [role="button"], input):focus-visible {
+  outline: 2px solid var(--xlg-accent) !important;
+  outline-offset: 3px !important;
+}
+
+/* -------------------------------------------------------- Lightweight mode */
+
+html[data-xlg][data-xlg-lite] [data-xlg-nav]::before,
+html[data-xlg][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-testid="Dropdown"]),
+html[data-xlg][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .88) !important;
+}
+html[data-xlg][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]::before {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .88);
+}
+
+/* ------------------------------------------------------------- Media queries */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xlg] [data-xlg-new-posts],
+  html[data-xlg] :is(header nav a > div, header nav button > div, [role="tab"], article[data-testid="tweet"], article[data-testid="notification"]) {
+    transition: none !important;
+  }
+}
+
+/* X collapses the rail to icons: keep its native width. */
+@media (max-width: 1264px) {
+  html[data-xlg][data-xlg-hide-sidebar] [data-xlg-layout] > header[role="banner"] {
+    flex-basis: var(--xlg-nav-width, 88px) !important;
+    width: var(--xlg-nav-width, 88px) !important;
+  }
+  html[data-xlg] [data-xlg-nav] > div {
+    padding: 24px 8px !important;
+  }
+  html[data-xlg] [data-xlg-nav]::before {
+    inset: 12px 0;
+  }
+}
+
+/* Narrow screens: 6px side insets instead of 10px. */
+@media (max-width: 700px) {
+  html[data-xlg] [data-xlg-new-posts] {
+    width: calc(100% - 12px) !important;
+    margin-inline: 6px !important;
+  }
+  html[data-xlg] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(article a) {
+    margin-inline: 6px !important;
+    border-radius: 18px !important;
+  }
+  html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]::before {
+    left: 6px;
+    right: 6px;
+  }
+  html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-connected] article[data-testid="tweet"] {
+    padding-inline: 19px !important;
+  }
+  html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
+    margin: 4px 6px 8px !important;
+    padding: 14px 12px !important;
+    border-radius: 18px !important;
+  }
+  html[data-xlg] [data-xlg-toolbar] {
+    margin: 12px 6px !important;
+  }
+}

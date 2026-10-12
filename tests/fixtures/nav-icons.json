@@ -1,0 +1,66 @@
+{
+  "icons": [
+    {
+      "href": "/home",
+      "label": "Home",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 10L12 3L21 10V21H15V14H9V21H3Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/explore",
+      "label": "Search and explore",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M10 3A7 7 0 1 0 10 17A7 7 0 1 0 10 3M15 15L22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/notifications",
+      "label": "Notifications",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 17V10A6 6 0 0 1 18 10V17L20 19H4L6 17M10 22H14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/chat",
+      "label": "Direct Messages",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 4H21V17H9L3 22Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/calls",
+      "label": "Calls",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 3L9 7L7 10C9 14 12 17 16 18L19 16L22 20C16 25 1 10 5 3Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/grok",
+      "label": "Grok",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 5L20 19M20 5L4 19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/premium",
+      "label": "Premium",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/history",
+      "label": "History",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 3H19V22L12 17L5 22Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/i/jf/creators/studio",
+      "label": "Creator Studio",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3L21 9L18 21H6L3 9ZM8 10H16M8 15H16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/compose/articles",
+      "label": "Articles",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 3H16L21 8V21H5ZM16 3V8H21M9 12H17M9 16H17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": "/profile",
+      "label": "Profile",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3A4 4 0 1 0 12 11A4 4 0 1 0 12 3M4 22V20A8 8 0 0 1 20 20V22Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+      "href": null,
+      "label": "More menu items",
+      "svg": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12H6M11 12H12M17 12H18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
+  ],
+  "logo": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 4L19 20M19 4L5 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+  "post": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 20L7 13L17 3L21 7L11 17ZM7 13L11 17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+}

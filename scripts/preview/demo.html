@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X Liquid Glass — Demo</title>
+<style>{{demoStyles}}</style>
+<style>{{themeStyles}}</style>
+<script>{{adapter}}</script>
+<script>{{settings}}</script>
+</head>
+<body style="background-color:rgb(0,0,0);color:rgb(231,233,234)">
+<div class="demo-bar">
+<div>
+<b>X Liquid Glass</b> <small>· Local demo · sample content</small>
+</div>
+<div class="controls">
+<button id="demoToggle">Before / After</button>
+<button id="demoTone">Light / Dark</button>
+<a href="popup-demo.html" target="_blank">Settings ↗</a>
+</div>
+</div>
+<div id="app">
+<header role="banner">
+<div>
+<div>
+<h1>𝕏</h1>
+<nav aria-label="Primary">{{navigation}}</nav>
+<a href="#post" data-testid="SideNav_NewTweet_Button">
+<div>Post</div>
+</a>
+<div class="account">
+<div class="avatar">S</div>
+<div>
+<b>Demo User</b>
+<small>@example</small>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main role="main">
+<div class="demo-columns">
+<div data-testid="primaryColumn">
+<div>
+<div class="native-toolbar">
+<div>
+<div class="tabs" role="tablist">
+<div role="tab" aria-selected="true">For you</div>
+<div role="tab">Following</div>
+<div role="tab">Tech</div>
+<div role="tab">Design</div>
+</div>
+</div>
+</div>
+<div class="composer">
+<div class="avatar">S</div>
+<div class="editor">
+<div data-testid="tweetTextarea_0" contenteditable="true" role="textbox" aria-label="Post text">What’s happening?</div>
+<div class="compose-tools">
+<span>▧ &nbsp; ◉ &nbsp; ☷ &nbsp; ☺</span>
+<button data-testid="tweetButtonInline" type="button">Post</button>
+</div>
+</div>
+</div>
+<div>{{posts}}</div>
+</div>
+</div>
+<aside data-testid="sidebarColumn">
+<form role="search">
+<div>
+<input data-testid="SearchBox_Search_Input" aria-label="Search" placeholder="⌕   Search">
+</div>
+</form>
+<div class="r-1phboty r-1ifxtd0">
+<aside>
+<h2>What’s happening</h2>
+<div class="trend">
+<small>Design · Trending</small>
+<b>Liquid Glass</b>
+<small>12.8K post</small>
+</div>
+<div class="trend">
+<small>Technology · Trending</small>
+<b>Build in public</b>
+<small>8.240 post</small>
+</div>
+<div class="trend">
+<small>Trending</small>
+<b>The future of design</b>
+<small>3.120 post</small>
+</div>
+</aside>
+</div>
+<div class="r-1phboty r-1ifxtd0">
+<section>
+<h2>Who to follow</h2>{{suggestions}}</section>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<script>{{runtime}}</script>
+<script>{{demoScript}}</script>
+</body>
+</html>

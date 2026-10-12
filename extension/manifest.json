@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "X Liquid Glass",
+  "version": "0.2.0",
+  "description": "A liquid glass look for X. Local preferences, no external services.",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "X Liquid Glass",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://www.x.com/*",
+        "https://twitter.com/*",
+        "https://www.twitter.com/*"
+      ],
+      "css": [
+        "glass.css"
+      ],
+      "js": [
+        "settings.js",
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

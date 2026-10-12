@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X Liquid Glass</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="brand" aria-hidden="true">𝕏</div>
+    <div>
+      <h1>Appearance</h1>
+      <p>X Liquid Glass</p>
+    </div>
+    <span class="version" id="version">0.2.0</span>
+  </header>
+
+  <main>
+    <div class="row activation">
+      <div><label for="enabled">Liquid Glass</label><small>Enable the theme on X</small></div>
+      <input class="switch" id="enabled" type="checkbox" role="switch">
+    </div>
+    <div class="row">
+      <div><label for="sidebar">Right sidebar</label><small>Trends, news and suggestions</small></div>
+      <input class="switch" id="sidebar" type="checkbox" role="switch">
+    </div>
+
+    <fieldset>
+      <legend>Theme color</legend>
+      <div class="swatches">
+        <button type="button" data-accent="aurora" aria-pressed="false"><i></i>Aurora</button>
+        <button type="button" data-accent="ocean" aria-pressed="false"><i></i>Ocean</button>
+        <button type="button" data-accent="forest" aria-pressed="false"><i></i>Green</button>
+        <button type="button" data-accent="ruby" aria-pressed="false"><i></i>Red</button>
+        <button type="button" data-accent="rose" aria-pressed="false"><i></i>Rose</button>
+        <button type="button" data-accent="amber" aria-pressed="false"><i></i>Amber</button>
+        <button type="button" data-accent="silver" aria-pressed="false"><i></i>Silver</button>
+        <button type="button" data-accent="custom" aria-pressed="false"><i></i>Custom</button>
+      </div>
+      <div id="customControls" class="custom-color" hidden>
+        <label for="customColor">Custom color</label>
+        <input id="customColor" type="color">
+        <input id="customHex" type="text" aria-label="HEX color code" maxlength="7" spellcheck="false" autocomplete="off" placeholder="#22c55e">
+      </div>
+    </fieldset>
+
+    <div class="slider-label"><label for="tint">Tint intensity</label><output id="tintValue" for="tint"></output></div>
+    <input id="tint" type="range" min="0" max="100" step="1" aria-description="How much color is added to the glass and background">
+    <div class="slider-label"><label for="blur">Blur</label><output id="blurValue" for="blur"></output></div>
+    <input id="blur" type="range" min="0" max="40" step="1">
+    <div class="slider-label"><label for="opacity">Glass opacity</label><output id="opacityValue" for="opacity"></output></div>
+    <input id="opacity" type="range" min="0" max="90" step="1">
+
+    <div class="row">
+      <div><label for="cards">Glass cards</label><small>Translucent posts and notifications</small></div>
+      <input class="switch" id="cards" type="checkbox" role="switch">
+    </div>
+    <div class="row">
+      <div><label for="lite">Lightweight mode</label><small>Reduce blur for better performance</small></div>
+      <input class="switch" id="lite" type="checkbox" role="switch">
+    </div>
+    <p class="hint">Matches X’s light or dark theme. Changes apply instantly.</p>
+  </main>
+
+  <footer>
+    <span id="status" role="status">Saved on this device</span>
+    <button id="reset" type="button">Reset</button>
+  </footer>
+  <script src="settings.js"></script><script src="popup.js"></script>
+</body>
+</html>
