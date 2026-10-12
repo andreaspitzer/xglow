@@ -23,7 +23,7 @@ test('preview generation includes every browser suite and no unresolved template
 test('release ZIP contains exactly runtime files and the license', () => {
   execFileSync(process.execPath, [path.join(__dirname, 'package.cjs')]);
   const { version } = JSON.parse(fs.readFileSync(path.join(extension, 'manifest.json'), 'utf8'));
-  const archive = path.join(root, 'dist', `x-liquid-glass-${version}.zip`);
+  const archive = path.join(root, 'dist', `xglow-${version}.zip`);
   const entries = execFileSync('unzip', ['-Z1', archive], { encoding: 'utf8' }).trim().split('\n');
   assert.deepEqual(entries.sort(), [...extensionFiles(), 'LICENSE'].sort());
   assert.ok(entries.includes('manifest.json'));

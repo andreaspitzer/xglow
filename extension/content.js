@@ -15,7 +15,7 @@
   // Opaque backgrounds of X's dark, dim and light themes.
   const NATIVE_SURFACES = new Set(['0,0,0', '255,255,255', '21,32,43', '22,24,28', '247,249,249', '239,243,244']);
 
-  let settings = XGlass.normalize();
+  let settings = XGlow.normalize();
   let nativeTone = 'dark';
   let frame = 0;
 
@@ -483,7 +483,7 @@
     root.toggleAttribute('data-xlg-cards', settings.cards);
     root.toggleAttribute('data-xlg-lite', settings.lite);
     root.toggleAttribute('data-xlg-hide-sidebar', !settings.sidebar);
-    const palette = XGlass.palette(settings, nativeTone);
+    const palette = XGlow.palette(settings, nativeTone);
     for (const [property, key] of PALETTE_PROPERTIES) root.style.setProperty(property, palette[key]);
     root.style.setProperty('--xlg-blur', `${settings.blur}px`);
     root.style.setProperty('--xlg-opacity', String(settings.opacity / 100));
@@ -533,17 +533,17 @@
   }
 
   function updateSettings(value) {
-    settings = XGlass.normalize(value);
+    settings = XGlow.normalize(value);
     apply();
     schedule();
   }
 
   apply();
-  chrome.storage.local.get(XGlass.storageKey)
-    .then(stored => updateSettings(stored[XGlass.storageKey]))
+  chrome.storage.local.get(XGlow.storageKey)
+    .then(stored => updateSettings(stored[XGlow.storageKey]))
     .catch(() => { apply(); schedule(); });
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[XGlass.storageKey]) updateSettings(changes[XGlass.storageKey].newValue);
+    if (area === 'local' && changes[XGlow.storageKey]) updateSettings(changes[XGlow.storageKey].newValue);
   });
 
   // Besides added and removed nodes, X updates virtualized cells in place:

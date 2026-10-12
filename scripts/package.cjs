@@ -7,8 +7,8 @@ const { root, extension, extensionFiles } = require('./project.cjs');
 execFileSync(process.execPath, [path.join(__dirname, 'check.cjs')], { stdio: 'inherit' });
 const { version } = JSON.parse(fs.readFileSync(path.join(extension, 'manifest.json'), 'utf8'));
 const output = path.join(root, 'dist');
-const archive = path.join(output, `x-liquid-glass-${version}.zip`);
-const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'x-liquid-glass-'));
+const archive = path.join(output, `xglow-${version}.zip`);
+const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'xglow-'));
 try {
   const files = extensionFiles();
   for (const name of files) {

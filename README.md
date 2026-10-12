@@ -1,4 +1,6 @@
-# X Liquid Glass
+# XGlow
+
+<img src="extension/icons/icon-128.png" width="96" height="96" alt="XGlow icon">
 
 A liquid glass makeover for X. Same feed, a more personal look.
 
@@ -10,17 +12,19 @@ A liquid glass makeover for X. Same feed, a more personal look.
 - **Local and private.** No analytics, external services, API keys or account actions. Settings stay on your device.
 - **Open source, easy to install.** Load the extension directly in Chrome, with no build step or dependencies.
 
-**[Download the latest release](https://github.com/monteduro/x-liquid-glass/releases/latest)** · **[Installation instructions](#install)**
+**[Download the latest release](https://github.com/monteduro/xglow/releases/latest)** · **[Installation instructions](#install)**
 
-## Screenshots
+## Theme examples
 
-### Home · Aurora
+Two color themes for the same extension. You can switch presets or choose your own HEX color in Appearance.
 
-![X Home with the Aurora liquid glass theme](docs/screenshots/home-aurora.png)
+### Aurora theme
 
-### Notifications · Amber
+![X Home with the Aurora liquid glass theme](docs/screenshots/theme-aurora.png)
 
-![X notifications with the Amber liquid glass theme](docs/screenshots/notifications-amber.png)
+### Amber theme
+
+![X notifications with the Amber liquid glass theme](docs/screenshots/theme-amber.png)
 
 Screenshots show customized settings. The “Review” button in the Home image belongs to another extension.
 
@@ -28,12 +32,12 @@ Default appearance: **Amber**, **50% tint**, **10 px blur**, **0% glass opacity*
 
 ## Install
 
-1. Open the [latest release](https://github.com/monteduro/x-liquid-glass/releases/latest) and download the **`x-liquid-glass-<version>.zip`** asset.
+1. Open the [latest release](https://github.com/monteduro/xglow/releases/latest) and download the **`xglow-<version>.zip`** asset.
 2. Extract the ZIP into a folder you will keep on your computer.
 3. Open **`chrome://extensions`** in Chrome and enable **Developer mode** in the top-right corner.
 4. Click **Load unpacked** and select the extracted folder containing **`manifest.json`**.
 5. Reload your X tabs after saving any drafts.
-6. Open **X Liquid Glass** from Chrome’s extensions menu to change colors, effects and sidebar visibility. Pin it to the toolbar for quick access.
+6. Open **XGlow** from Chrome’s extensions menu to change colors, effects and sidebar visibility. Pin it to the toolbar for quick access.
 
 **Installing from source instead?** Use **Code → Download ZIP** on this repository, extract it, and select its **`extension/`** folder in step 4.
 
@@ -64,9 +68,9 @@ npm run build:preview
 Launch the generated local demo through the **unlocalhost CLI**:
 
 ```sh
-unlocalhost --yes setup . --slug xthemes --features https,dev
-unlocalhost up xthemes
-unlocalhost url xthemes
+unlocalhost --yes setup . --slug xglow --features https,dev
+unlocalhost up xglow
+unlocalhost url xglow
 ```
 
 The saved development command is `npm run dev`. It serves generated files from `public/` and uses the port provided by unlocalhost. `public/` is generated and excluded from Git.
@@ -79,7 +83,7 @@ See [Development](docs/DEVELOPMENT.md) for browser regression suites and DOM int
 npm run package
 ```
 
-This requires the `zip` command and creates `dist/x-liquid-glass-<version>.zip`. The archive contains extension files and the license, with `manifest.json` at its root. Tests, demos, screenshots and local notes are excluded.
+This requires the `zip` command and creates `dist/xglow-<version>.zip`. The archive contains extension files and the license, with `manifest.json` at its root. Tests, demos, screenshots and local notes are excluded.
 
 ## Compatibility
 

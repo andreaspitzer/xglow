@@ -18,7 +18,7 @@
   const hexInput = $('customHex');
   const swatches = [...document.querySelectorAll('[data-accent]')];
   const controls = [...document.querySelectorAll('input, button')];
-  let settings = XGlass.normalize();
+  let settings = XGlow.normalize();
   let queue = Promise.resolve();
 
   const setDisabled = disabled => controls.forEach(control => { control.disabled = disabled; });
@@ -40,27 +40,27 @@
     $('customColor').value = settings.customColor;
     hexInput.value = settings.customColor;
     hexInput.removeAttribute('aria-invalid');
-    document.documentElement.style.setProperty('--accent', XGlass.palette(settings).interfaceHex);
+    document.documentElement.style.setProperty('--accent', XGlow.palette(settings).interfaceHex);
     for (const button of swatches) {
       button.setAttribute('aria-pressed', String(button.dataset.accent === settings.accent));
-      button.style.setProperty('--swatch', XGlass.palette({ ...settings, accent: button.dataset.accent }).hex);
+      button.style.setProperty('--swatch', XGlow.palette({ ...settings, accent: button.dataset.accent }).hex);
     }
   }
 
   // Writes are chained so a slower earlier write cannot overwrite a newer one.
   function save(patch) {
-    settings = XGlass.normalize({ ...settings, ...patch });
+    settings = XGlow.normalize({ ...settings, ...patch });
     render();
     const snapshot = { ...settings };
     status.textContent = MESSAGES.saving;
     queue = queue.catch(() => {})
-      .then(() => chrome.storage.local.set({ [XGlass.storageKey]: snapshot }))
+      .then(() => chrome.storage.local.set({ [XGlow.storageKey]: snapshot }))
       .then(() => { status.textContent = MESSAGES.saved; })
       .catch(() => { status.textContent = MESSAGES.saveFailed; });
   }
 
   function saveHex() {
-    const color = XGlass.colorHex(hexInput.value);
+    const color = XGlow.colorHex(hexInput.value);
     if (color) {
       save({ accent: 'custom', customColor: color });
       return;
@@ -85,13 +85,13 @@
     event.preventDefault();
     saveHex();
   });
-  $('reset').addEventListener('click', () => save(XGlass.defaults));
+  $('reset').addEventListener('click', () => save(XGlow.defaults));
 
   const version = globalThis.chrome?.runtime?.getManifest?.().version;
   if (version) $('version').textContent = version;
 
-  chrome.storage.local.get(XGlass.storageKey).then(stored => {
-    settings = XGlass.normalize(stored[XGlass.storageKey]);
+  chrome.storage.local.get(XGlow.storageKey).then(stored => {
+    settings = XGlow.normalize(stored[XGlow.storageKey]);
     render();
     setDisabled(false);
   }).catch(() => {

@@ -45,6 +45,7 @@ write('index.html', render(preview('demo.html'), {
 }));
 
 const popup = extension(manifest.action.default_popup)
+  .replace(/<img([^>]+)src="([^"]+\.png)"/g, (_, attributes, name) => `<img${attributes}src="data:image/png;base64,${fs.readFileSync(path.join(root, 'extension', name)).toString('base64')}"`)
   .replace(/<link rel="stylesheet" href="([^"]+)">/g, (_, name) => `<style>${extension(name)}</style>`)
   .replace('</head>', `<script>${adapter}</script></head>`)
   .replace(/<script src="([^"]+)"><\/script>/g, (_, name) => `<script>${extension(name)}</script>`);

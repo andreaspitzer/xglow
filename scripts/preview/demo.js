@@ -1,7 +1,7 @@
 document.getElementById('demoToggle').addEventListener('click', async () => {
   const { xGlass } = await chrome.storage.local.get('xGlass');
   await chrome.storage.local.set({
-    xGlass: { ...XGlass.normalize(xGlass), enabled: !document.documentElement.hasAttribute('data-xlg') }
+    xGlass: { ...XGlow.normalize(xGlass), enabled: !document.documentElement.hasAttribute('data-xlg') }
   });
 });
 document.getElementById('demoTone').addEventListener('click', () => {

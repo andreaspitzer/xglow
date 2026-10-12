@@ -31,7 +31,7 @@
   check(dialogs.every(dialog => getComputedStyle(dialog).backdropFilter === 'none'), 'Blur does not collapse the media viewer');
   check(nav.getBoundingClientRect().right <= document.querySelector('[data-testid="primaryColumn"]').getBoundingClientRect().left, 'Navigation does not cover the feed');
   check(getComputedStyle(document.querySelector('[data-xlg-composer]')).padding === '0px', 'The composer adds no padding to the native padding');
-  const expectedSurface = `rgba(${XGlass.palette().base}, ${XGlass.defaults.opacity / 100})`;
+  const expectedSurface = `rgba(${XGlow.palette().base}, ${XGlow.defaults.opacity / 100})`;
   check(getComputedStyle(document.querySelector('[data-xlg-composer]')).backgroundColor === expectedSurface, 'A more specific selector does not cancel the composer surface');
   check(getComputedStyle(document.querySelector('[data-xlg-toolbar]')).backgroundColor === expectedSurface, 'The header surface is not cancelled');
   for (const selector of ['.native-toolbar-inner', '.composer-inner', '.composer-actions', '.suggestions', '.search-shell']) {

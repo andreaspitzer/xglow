@@ -38,24 +38,24 @@ const marquee = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="56
 <circle cx="1360" cy="20" r="640" fill="#f4b952" fill-opacity=".07"/>
 <circle cx="140" cy="560" r="450" fill="#f4b952" fill-opacity=".04"/>
 ${iconAt(110, 105, 128 * 2.7)}
-<text x="510" y="245" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="#fff4df">X Liquid Glass</text>
+<text x="510" y="245" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="#fff4df">XGlow</text>
 <text x="514" y="309" font-family="Arial, sans-serif" font-size="31" fill="#c8c1b7">Glass cards. Your colors. Your feed.</text>
 ${['#97a7ff', '#5bcce8', '#48d397', '#f45c6c', '#ef9dc6', '#f4b952', '#b0c1d5'].map((color, i) => `<circle cx="${529 + i * 44}" cy="374" r="11" fill="${color}"/>`).join('')}
 </svg>`;
 render(marquee, path.join(store, 'marquee-1400x560.png'));
 
-function screenshot({ source, title, subtitle, detail, color, footer, output }) {
+function screenshot({ source, title, subtitle, detail, color, tone, footer, output }) {
   const png = fs.readFileSync(path.join(root, 'docs', 'screenshots', source));
   const scale = Math.min(775 / png.readUInt32BE(16), 736 / png.readUInt32BE(20));
   const width = png.readUInt32BE(16) * scale, height = png.readUInt32BE(20) * scale;
   const x = 473 + (775 - width) / 2, y = 32 + (736 - height) / 2;
   const data = png.toString('base64');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="800" viewBox="0 0 1280 800">
-<rect width="1280" height="800" fill="${background}"/>
+<rect width="1280" height="800" fill="${tone}"/>
 <circle cx="1080" cy="140" r="560" fill="${color}" fill-opacity=".09"/>
 ${iconAt(34, 35, 128 * .7)}
 <g font-family="Arial, sans-serif" fill="#f7f3eb">
-<text x="50" y="174" font-size="28" font-weight="bold">X Liquid Glass</text>
+<text x="50" y="174" font-size="28" font-weight="bold">XGlow</text>
 <text x="50" y="267" font-size="48" font-weight="bold">${title}</text>
 <text x="50" y="321" font-size="24" fill="#c8c1b7">${subtitle}</text>
 <text x="50" y="378" font-size="21" fill="#c8c1b7">${detail}</text>
@@ -66,6 +66,6 @@ ${iconAt(34, 35, 128 * .7)}
 </svg>`;
   render(svg, path.join(store, output));
 }
-screenshot({ source: 'home-aurora.png', title: 'A softer feed.', subtitle: 'Glass cards. Your colors.', detail: 'Adjust tint, blur and opacity.', color: '#a6b3ff', footer: 'Customized settings. Review is a separate extension.', output: 'home-1280x800.png' });
-screenshot({ source: 'notifications-amber.png', title: 'Your atmosphere.', subtitle: 'Seven presets. Any HEX color.', detail: 'Glass across notifications and more.', color: '#f4b952', footer: 'Customized Amber settings shown.', output: 'notifications-1280x800.png' });
+screenshot({ source: 'theme-aurora.png', title: 'Aurora theme', subtitle: 'Cool violet. Soft reflections.', detail: 'Same extension. Different color theme.', color: '#a6b3ff', tone: '#111420', footer: 'Custom settings. Review is a separate extension.', output: 'theme-aurora-1280x800.png' });
+screenshot({ source: 'theme-amber.png', title: 'Amber theme', subtitle: 'Warm gold. Soft reflections.', detail: 'Same extension. Different color theme.', color: '#f4b952', tone: '#191714', footer: 'Custom Amber settings shown.', output: 'theme-amber-1280x800.png' });
 console.log('Exported extension icons, opaque 440×280 and 1400×560 promo tiles and two 1280×800 listing images.');

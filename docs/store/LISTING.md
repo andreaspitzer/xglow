@@ -4,7 +4,7 @@ This file contains ready-to-use English listing copy and permission explanations
 
 ## Listing
 
-**Name:** X Liquid Glass
+**Name:** XGlow
 
 **Summary:** A liquid glass look for X. Local preferences, no external services.
 
@@ -12,11 +12,11 @@ This file contains ready-to-use English listing copy and permission explanations
 
 **Category:** Social Media & Networking. The extension customizes X, a social media platform. See [Google's category definitions](https://developer.chrome.com/docs/webstore/best-practices#choose_your_extensions_category_well).
 
-**Homepage:** https://github.com/monteduro/x-liquid-glass
+**Homepage:** https://github.com/monteduro/xglow
 
-**Support:** https://github.com/monteduro/x-liquid-glass/issues
+**Support:** https://github.com/monteduro/xglow/issues
 
-**Privacy policy:** https://github.com/monteduro/x-liquid-glass/blob/main/docs/PRIVACY.md
+**Privacy policy:** https://github.com/monteduro/xglow/blob/main/docs/PRIVACY.md
 
 ### Detailed description
 
@@ -29,11 +29,13 @@ Give X a liquid glass look with translucent cards, soft reflections and rounded 
 • Keep connected timeline posts together in one frame and preserve the familiar flow of post-detail replies.
 • Follow X's light or dark appearance, with an optional lightweight mode.
 
+The listing images show two example color themes, Aurora and Amber, for the same extension. Switch between presets in Appearance or create your own palette.
+
 Changes apply instantly from the extension's Appearance panel. Defaults are Amber, 50% tint, 10 px blur and 0% glass opacity. Reset returns to those defaults.
 
 Your preferences stay on your device. No analytics, ads, external services or separate account are required. The extension does not post, reply, follow accounts or send messages for you.
 
-X Liquid Glass is free and open source under the MIT license. It is independently developed and is not affiliated with X Corp. X may change its website, which can occasionally require theme updates.
+XGlow is free and open source under the MIT license. It is independently developed and is not affiliated with X Corp. X may change its website, which can occasionally require theme updates.
 
 ## Privacy practices
 
@@ -66,7 +68,7 @@ The publisher must review the dashboard's exact disclosure and certification wor
 3. Change a preset or choose Custom and enter a HEX color. Adjust effects; the page updates immediately.
 4. Enable and disable Right sidebar. The timeline remains centered when that column is hidden.
 5. Browse Home, notifications, a profile, a post with replies and Chat. The extension only changes presentation.
-6. Click Reset to restore defaults. Switch Liquid Glass off to restore X's native appearance.
+6. Click Reset to restore defaults. Switch XGlow off to restore X's native appearance.
 
 No developer credentials or access to a personal account are required or provided.
 
@@ -76,18 +78,19 @@ No developer credentials or access to a personal account are required or provide
 - Store icon: `extension/icons/icon-128.png`.
 - Small promotional tile: `docs/store/promo-440x280.png`.
 - Marquee promotional tile: `docs/store/marquee-1400x560.png` (optional).
-- Screenshots: `docs/store/home-1280x800.png` and `docs/store/notifications-1280x800.png`.
+- Aurora theme screenshot: `docs/store/theme-aurora-1280x800.png`.
+- Amber theme screenshot: `docs/store/theme-amber-1280x800.png`.
 
 Promotional tiles and screenshots are exported as 24-bit RGB PNGs with no alpha channel. Extension icons retain transparent padding.
 
-The screenshots use the owner-supplied images already published in the README. They show customized settings. The Review button visible in Home belongs to another extension and is not a feature of X Liquid Glass.
+The screenshots show two color themes for the same extension: Aurora and Amber. They use the owner-supplied images already published in the README with customized settings. The underlying captures are Home and notifications, but the listing presents the color palettes. The Review button in the Aurora image belongs to another extension and is not a feature of XGlow.
 
 To regenerate the committed artwork, install ImageMagick and run `npm run build:store`. This optional export is separate from extension packaging and does not add a runtime dependency.
 
 ## Submission state
 
-Prepared locally. Not yet uploaded, submitted, reviewed or published in the Chrome Web Store. GitHub availability does not imply Store approval.
+The XGlow 0.3.0 package and these revised materials are prepared locally. They have not been uploaded or submitted by the project automation. There is no public Chrome Web Store listing yet. GitHub availability does not imply Store approval.
 
-The current prepared package is 0.2.3, which replaces the initial icon. If an earlier draft was uploaded, replace its package and Store images before submitting.
+The current prepared package is XGlow 0.3.0, with the approved abstract glass-loop icon. If an earlier draft was uploaded, replace its package, name, description, URLs and Store images before submitting.
 
 Official references: [publish](https://developer.chrome.com/docs/webstore/publish), [images](https://developer.chrome.com/docs/webstore/images), [privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy).

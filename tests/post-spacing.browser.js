@@ -5,7 +5,8 @@
   const check = (condition, message) => { if (!condition) throw new Error(message); checks.push(message); };
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
   const content = document.querySelector('[data-testid="primaryColumn"] > div');
-  const toolbar = document.querySelector('[data-xlg-toolbar]');
+  // The native toolbar exists before the runtime marks it on its first frame.
+  const toolbar = content.querySelector('.toolbar');
   const composer = content.querySelector('.composer');
   const oldPath = location.pathname;
   const cell = document.createElement('div'); cell.setAttribute('data-testid', 'cellInnerDiv');

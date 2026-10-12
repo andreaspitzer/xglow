@@ -1,5 +1,5 @@
 /* Preferences and palette, shared by the content script and the popup. */
-globalThis.XGlass = (() => {
+globalThis.XGlow = (() => {
   const storageKey = 'xGlass';
 
   const defaults = Object.freeze({

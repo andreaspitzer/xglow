@@ -26,10 +26,10 @@ The extension itself has no build step. The preview builder reads the manifest a
 Use unlocalhost to launch and expose the project:
 
 ```sh
-unlocalhost --yes setup . --slug xthemes --features https,dev
-unlocalhost up xthemes
-unlocalhost status xthemes
-unlocalhost url xthemes
+unlocalhost --yes setup . --slug xglow --features https,dev
+unlocalhost up xglow
+unlocalhost status xglow
+unlocalhost url xglow
 ```
 
 For an already registered project, inspect its saved process and endpoint before changing the configuration. The extension does not use this development server at runtime.
@@ -57,6 +57,7 @@ The synthetic fixtures catch layout regressions without using real account conte
 ## Integration constraints
 
 - Theme overrides are gated by the root `data-xlg` attribute so disabling the extension restores native appearance.
+- The settings namespace is `XGlow`. The storage key `xGlass` and DOM markers `data-xlg-*` remain stable across the rebrand so existing installations retain their preferences.
 - Virtualized cells keep their native position, transforms and heights. Conversation backgrounds span the relevant cells without inserting layout wrappers.
 - Fixed navigation, fullscreen image viewers and dropdowns must retain their native containing blocks. Applying a backdrop filter to the wrong ancestor can change positioning.
 - Post-detail replies keep native connection lines and flow. Glass surfaces apply to the composer and permission notices rather than each reply.

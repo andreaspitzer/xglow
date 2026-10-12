@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "X Liquid Glass",
-  "version": "0.2.3",
+  "name": "XGlow",
+  "version": "0.3.0",
   "description": "A liquid glass look for X. Local preferences, no external services.",
   "minimum_chrome_version": "111",
   "icons": {
@@ -18,7 +18,7 @@
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png"
     },
-    "default_title": "X Liquid Glass",
+    "default_title": "XGlow",
     "default_popup": "popup.html"
   },
   "content_scripts": [

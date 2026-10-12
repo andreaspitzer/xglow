@@ -1,8 +1,8 @@
-# Privacy policy — X Liquid Glass
+# Privacy policy — XGlow
 
 Last updated: October 12, 2026.
 
-X Liquid Glass changes the appearance of X (formerly Twitter) in Chrome. It is an independent, open-source extension and is not affiliated with X Corp.
+XGlow changes the appearance of X (formerly Twitter) in Chrome. It is an independent, open-source extension and is not affiliated with X Corp.
 
 ## Data on your device
 
@@ -24,6 +24,6 @@ You can change or reset appearance settings in the extension popup, disable the 
 
 ## Contact and changes
 
-For questions, open an issue at [the project repository](https://github.com/monteduro/x-liquid-glass/issues). Issues are public, so do not include private messages, credentials or other sensitive information.
+For questions, open an issue at [the project repository](https://github.com/monteduro/xglow/issues). Issues are public, so do not include private messages, credentials or other sensitive information.
 
 Changes to this policy will be published in this file with an updated date.
