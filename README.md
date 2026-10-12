@@ -53,7 +53,7 @@ To update a local installation, replace its files, click **Reload** on the exten
 
 The extension requests only `storage` and runs only on the X/Twitter domains listed in its manifest. Preferences are stored with `chrome.storage.local`.
 
-The runtime inspects page structure and interface colors to apply CSS. It does not collect or store posts or private messages, send analytics, make network requests, or perform account actions. X Chat styling is applied inside its open shadow roots.
+The runtime processes page structure, interface colors, the current X route and limited interaction signals locally to apply CSS and preserve layout behavior. It does not persist page content or interaction histories, send analytics, make network requests, or perform account actions. X Chat styling is applied inside its open shadow roots. The [privacy policy](docs/PRIVACY.md) describes this local processing and the corresponding Store disclosures.
 
 ## Development
 

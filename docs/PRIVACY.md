@@ -8,7 +8,17 @@ XGlow changes the appearance of X (formerly Twitter) in Chrome. It is an indepen
 
 The extension saves appearance preferences in `chrome.storage.local`: whether the theme is enabled, the chosen color and tint, blur, opacity, card styling, lightweight mode and sidebar visibility. These settings remain in your Chrome profile. The extension does not sync them to a developer-operated service.
 
-To apply its theme, the extension inspects the structure of X pages and Chat components locally in your browser. It does not collect or store posts, private messages, account information, browsing history, credentials or payment information. It does not send page content or settings to the developer or any other service.
+To apply its theme, XGlow processes website content locally: the structure, attributes, colors and geometry of X pages and Chat components, plus short interface labels used to identify controls. It does not extract post text, private-message contents, account details, credentials or payment information for collection or analysis.
+
+XGlow also reads the current X page path to apply the appropriate layout. This is limited to the page on which its content script is running; it does not use Chrome's browsing-history API or build a record of visited pages.
+
+For layout behavior, XGlow detects wheel, touch, pointer and navigation-key events to stop automatic post-position adjustments after the user interacts. It does not log keystrokes, typed text, pointer positions or interaction histories.
+
+For Chrome Web Store disclosure purposes, these operations are local processing of **Website content**, **Web history** (the current X route only) and **User activity** (the interaction signals above). Page data and interaction signals are not persisted or transmitted. The only persistent data is the appearance preferences described above. Nothing is sent to the developer or another service.
+
+## Limited use
+
+XGlow uses locally processed page and interaction data only for its disclosed purpose: applying the visual theme and preserving the layout and scrolling behavior of X. Its use of this information adheres to the Chrome Web Store User Data Policy, including the Limited Use requirements. Data is not sold, transferred, used for advertising or unrelated purposes, used for creditworthiness or lending decisions, or made available for people working on the project to read.
 
 ## No tracking or external services
 

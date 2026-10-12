@@ -57,7 +57,11 @@ No remote code is used. All JavaScript and CSS are included in the extension pac
 
 ### Data collection
 
-No user data is collected or transmitted to the developer. Appearance preferences are stored only on the user's device. The code inspects page structure locally for styling; it does not collect or store website content or browsing history.
+XGlow locally processes website structure, interface labels, colors and geometry to apply its visual theme. It reads the current X page path to select the correct layout, and detects wheel, touch, pointer and navigation-key signals to stop automatic post-position adjustments after user interaction. Page data and interaction signals are not persisted or transmitted. Only appearance preferences are saved locally. No data is sent to the developer or third parties.
+
+**Data usage categories:** Website content; Web history (current X route only, not browser-history access or a history log); User activity (local interaction signals only, no keystroke or interaction logging).
+
+The other categories are not used for data collection. The three Limited Use certifications match the current implementation: no sale or transfer, no use for unrelated purposes, and no creditworthiness or lending use.
 
 The publisher must review the dashboard's exact disclosure and certification wording before submitting. Local page access should be described consistently with this policy.
 
