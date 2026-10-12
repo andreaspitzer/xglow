@@ -10,7 +10,7 @@ This file contains ready-to-use English listing copy and permission explanations
 
 **Language:** English
 
-**Suggested category:** Make Chrome Yours → Themes & Colors, if available in the dashboard. This is a site-styling extension, not a Chrome browser theme.
+**Category:** Social Media & Networking. The extension customizes X, a social media platform. See [Google's category definitions](https://developer.chrome.com/docs/webstore/best-practices#choose_your_extensions_category_well).
 
 **Homepage:** https://github.com/monteduro/x-liquid-glass
 
