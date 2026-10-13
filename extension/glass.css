@@ -611,6 +611,14 @@ html[data-xlg] [data-testid="primaryColumn"] a[href$="/header_photo"]:not(articl
 html[data-xlg] [data-testid="Dropdown"] {
   overflow: hidden;
 }
+/* X wraps menus (Repost/Quote, More) in an opaque role="menu" layer with its
+   own 12px corners, shadow and clipping: they would show as dark corners
+   around the themed surface and cut its glow. */
+html[data-xlg] [role="menu"]:has([data-testid="Dropdown"]) {
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
 html[data-xlg] [data-testid="Dropdown"] [role="menuitem"] {
   background: transparent !important;
 }
