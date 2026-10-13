@@ -66,6 +66,11 @@
       box-shadow: inset 0 0 0 1px var(--xlg-border), 0 12px 40px var(--xlg-shadow);
     }
     :host([data-xlg-chat][data-xlg-chat-lite]) [data-testid="dm-container"]::before { backdrop-filter: none; }
+    :host([data-xlg-chat][data-xlg-chat-square]) [data-testid="dm-container"]::before,
+    :host([data-xlg-chat][data-xlg-chat-square]) [data-testid="dm-conversation-header"],
+    :host([data-xlg-chat][data-xlg-chat-square]) [data-testid="dm-composer-container"]::before { border-radius: 0; }
+    :host([data-xlg-chat][data-xlg-chat-hud]) [data-testid="dm-container"]::before { clip-path: var(--xlg-clip); }
+    :host([data-xlg-chat][data-xlg-chat-hud]) :is([data-testid="dm-search-input"], [data-testid="dm-composer-input-container"]) { border-radius: 0; }
     /* From 918px Chat shows the inbox beside the conversation (its own container
        query), so the conversation's left corners meet the inbox. */
     @container (width >= 918px) {
@@ -93,6 +98,9 @@
     for (const host of document.querySelectorAll(CHAT_HOSTS)) {
       host.toggleAttribute('data-xlg-chat', settings.enabled);
       host.toggleAttribute('data-xlg-chat-lite', settings.lite);
+      const shape = XGlow.themeDefinitions[settings.theme].chatShape;
+      host.toggleAttribute('data-xlg-chat-square', shape !== 'rounded');
+      host.toggleAttribute('data-xlg-chat-hud', shape === 'cut');
       let state = chatHosts.get(host);
       if (!state) chatHosts.set(host, state = { attempts: 0 });
       const shadow = host.shadowRoot;
@@ -302,7 +310,7 @@
   }
 
   function syncConversations(container) {
-    const groups = settings.enabled && settings.cards && !isThread() ? groupConnectedCells(container) : [];
+    const groups = settings.enabled && !isThread() ? groupConnectedCells(container) : [];
     for (const group of groups) paintConversation(group);
     const active = new Set(groups.flat().map(item => item.cell));
     const starts = new Set(groups.map(group => group[0].cell));
@@ -465,6 +473,7 @@
   const PALETTE_PROPERTIES = Object.entries({
     '--xlg-accent-rgb': 'accent',
     '--xlg-ui-accent-rgb': 'interfaceAccent',
+    '--xlg-secondary-rgb': 'secondary',
     '--xlg-control-start-rgb': 'controlStart',
     '--xlg-control-end-rgb': 'controlEnd',
     '--xlg-base': 'base',
@@ -480,8 +489,12 @@
   function apply() {
     root.toggleAttribute('data-xlg', settings.enabled);
     root.setAttribute('data-xlg-tone', nativeTone);
-    root.toggleAttribute('data-xlg-cards', settings.cards);
+    root.toggleAttribute('data-xlg-cards', settings.enabled);
     root.toggleAttribute('data-xlg-lite', settings.lite);
+    root.setAttribute('data-xlg-theme', settings.theme);
+    for (const [id, theme] of Object.entries(XGlow.themeDefinitions)) {
+      if (theme.marker) root.toggleAttribute(theme.marker, settings.theme === id);
+    }
     root.toggleAttribute('data-xlg-hide-sidebar', !settings.sidebar);
     const palette = XGlow.palette(settings, nativeTone);
     for (const [property, key] of PALETTE_PROPERTIES) root.style.setProperty(property, palette[key]);

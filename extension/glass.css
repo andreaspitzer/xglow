@@ -16,6 +16,7 @@
 html[data-xlg] {
   --xlg-accent-rgb: 244, 185, 82;
   --xlg-ui-accent-rgb: var(--xlg-accent-rgb);
+  --xlg-secondary-rgb: 41, 226, 255;
   --xlg-control-start-rgb: 249, 217, 160;
   --xlg-control-end-rgb: var(--xlg-accent-rgb);
   --xlg-blur: 10px;

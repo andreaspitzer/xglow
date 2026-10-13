@@ -19,6 +19,7 @@ The extension itself has no build step. The preview builder reads the manifest a
 | --- | --- |
 | `npm run check` | Check JavaScript syntax, manifest assets, matching versions and obvious private-data patterns |
 | `npm test` | Run Node tests |
+| `npm run test:themes` | Run source, Node and headless Chromium theme checks; save an HTML report and sample screenshots |
 | `npm run build:preview` | Generate the demo, popup preview, layout fixture and browser runners |
 | `npm run dev` | Build and serve previews on the provided `PORT` |
 | `npm run package` | Validate sources and create an extension-only ZIP with its license |
@@ -54,10 +55,24 @@ Run suites in separate tabs. The centering suite creates child fixtures and shar
 
 The synthetic fixtures catch layout regressions without using real account content. Also inspect changed selectors on the corresponding X route because X may update its DOM independently of the fixtures.
 
+## Automated theme checks
+
+Install development dependencies with `npm ci`, then the browser once with `npx playwright install --only-shell chromium`. Run `npm run test:themes` from a checkout registered with unlocalhost. The runner discovers that checkout's registration and uses its loopback upstream; it starts the saved process if stopped, without changing the registration. An explicit `XGLOW_TEST_BASE_URL` can target an existing local synthetic fixture server. CI uses a temporary loopback fixture server instead of a developer registration.
+
+The Playwright suite discovers theme IDs from the actual registry. It covers light/dark appearance at 1440, 700 and 390 px, all presets and extreme custom colors, rendered post/author/button contrast, effect limits, sidebar-hidden centering, search hit testing, notifications, connected replies, Chat shapes/drafts, disabled restoration and neutral popup behavior. The settings suite also runs with reduced motion. Existing browser runners execute in a separate regression project.
+
+Reports are written to `artifacts/themes/report` (HTML) and `artifacts/themes/report.json`; failure screenshots and traces are retained under `artifacts/themes/results`. Representative screenshots use sample fixture content only. Open the report with `npx playwright show-report artifacts/themes/report`. For a focused rerun, pass Playwright arguments through the command, for example `npm run test:themes -- --project=settings`.
+
+Contrast assertions use rendered text/control colors against the palette's opaque surface values. They catch numeric contrast regressions, but are not pixel-level analysis of every translucent gradient or proof of visual quality on real X. Report failures as failures, including pre-existing ones; do not turn them into skipped checks.
+
 ## Integration constraints
 
 - Theme overrides are gated by the root `data-xlg` attribute so disabling the extension restores native appearance.
 - The settings namespace is `XGlow`. The storage key `xGlass` and DOM markers `data-xlg-*` remain stable across the rebrand so existing installations retain their preferences.
+- The `theme` preference (`glass`, `cyberpunk` or `hud`) selects the look. `cyberpunk.css` and `hud.css` load after `glass.css` and are gated by `data-xlg-cyber` and `data-xlg-hud`; they reuse the glass markers and palette properties, and `settings.js` returns the matching palette. Rules that override `glass.css` repeat its selector with one more attribute. Chat's shadow-root styles follow the `data-xlg-chat-square` and `data-xlg-chat-hud` host attributes. Saved `cyberpunk: true` values migrate to `theme: 'cyberpunk'`.
+- Theme and accent are independent preferences: selecting either preserves the other. The popup generates its theme cards from `XGlow.themeDefinitions` and shares one color picker across every theme. HUD uses a fixed red/cyan palette, with darker teal in light mode for text contrast, and declares `supportsAccent: false`; selecting it collapses the color controls while retaining the saved accent. Popup typography, surfaces and controls stay neutral.
+- Card surfaces are part of every enabled theme. The retired `cards` preference is ignored during normalization; the internal `data-xlg-cards` marker follows the extension's enabled state. Post-detail replies still use their native connected flow.
+- HUD panels are chamfered with `clip-path`, which hides the border on the cut: the diagonal is painted by the `--xlg-surface` background instead. Anything that can hold search suggestions (the search field, toolbars and panels containing it) keeps square corners and `--xlg-surface-flat`, because a clip would cut its dropdown.
 - Virtualized cells keep their native position, transforms and heights. Conversation backgrounds span the relevant cells without inserting layout wrappers.
 - Fixed navigation, fullscreen image viewers and dropdowns must retain their native containing blocks. Applying a backdrop filter to the wrong ancestor can change positioning.
 - Post-detail replies keep native connection lines and flow. Glass surfaces apply to the composer and permission notices rather than each reply.
@@ -66,10 +81,14 @@ The synthetic fixtures catch layout regressions without using real account conte
 - Initial post-anchor correction stops after user interaction. Never reset scroll during ordinary browsing.
 - Selectors should use semantic roles or stable test IDs where possible; keep necessary native class selectors documented.
 
+## Adding a theme
+
+Follow the canonical [theme contribution contract](THEMES.md). It covers registration, color capabilities, palette tokens, CSS scope, Chat shapes and the validation matrix. Repository instructions for coding agents are in [AGENTS.md](../AGENTS.md).
+
 ## Release preparation
 
 Keep the version consistent across `extension/manifest.json`, `package.json` and the popup version label. Run source checks, Node tests and relevant browser suites before packaging.
 
 Generated pages, release output, screenshots and private working notes are ignored. Packaging includes only the contents of `extension/` plus `LICENSE`; no account-specific fixture or local artifact belongs in the ZIP.
 
-GitHub Actions runs source checks, Node tests, preview generation and packaging on Node 20 and 24. Browser suites remain a separate browser validation step.
+GitHub Actions runs source checks, Node tests, preview generation and packaging on Node 20 and 24. A separate Chromium job runs `npm run test:themes` and uploads its report even when tests fail. Real-X inspection remains a separate validation step.

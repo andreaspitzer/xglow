@@ -9,11 +9,15 @@
   },
   "scripts": {
     "test": "node --test",
+    "test:themes": "node scripts/verify-themes.cjs",
     "check": "node scripts/check.cjs",
     "build:preview": "node scripts/build-preview.cjs",
     "build:store": "node scripts/build-store.cjs",
     "predev": "npm run build:preview",
     "dev": "node scripts/serve-preview.cjs",
     "package": "node scripts/package.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
   }
 }
