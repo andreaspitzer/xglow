@@ -7,7 +7,7 @@ const { root, extension, filesIn, extensionFiles } = require('./project.cjs');
 const directories = ['extension', 'scripts', 'tests', 'docs', '.github'];
 const files = directories.flatMap(name => filesIn(path.join(root, name)))
   .filter(file => /\.(?:js|cjs|css|html|json|md|ya?ml|svg|txt)$/.test(file));
-const rootFiles = ['README.md', 'CONTRIBUTING.md', 'LICENSE', '.gitignore', 'package.json'];
+const rootFiles = ['README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'LICENSE', '.gitignore', 'package.json', 'package-lock.json', 'playwright.config.cjs'];
 files.push(...rootFiles.map(name => path.join(root, name)));
 const privatePath = /(?:\/Users\/|[A-Z]:\\Users\\|\/home\/[^/"'\s]+\/)/;
 const privateKey = /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/;

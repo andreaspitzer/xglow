@@ -1,0 +1,165 @@
+const { test, expect } = require('@playwright/test');
+const { themes, fixture, apply, settle, attachScreenshot, failOnPageErrors } = require('./helpers.cjs');
+
+for (const [theme, definition] of themes) {
+  test.describe(definition.label, () => {
+    test('colors, contrast and effect limits', async ({ page }, info) => {
+      const errors = failOnPageErrors(page);
+      const tone = info.project.use.colorScheme;
+      await fixture(page, theme, tone);
+      const colors = [
+        ...Object.keys(XGlow.accents).map(accent => ({ accent })),
+        ...['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#808080'].map(customColor => ({ accent: 'custom', customColor }))
+      ];
+      for (const color of colors) {
+        // Opaque surfaces give a known background for numeric contrast checks.
+        await apply(page, { theme, ...color, tint: 100, opacity: 90 });
+        const expected = XGlow.palette({ theme, ...color, tint: 100, opacity: 90 }, tone);
+        const actual = await page.evaluate(() => {
+          const root = getComputedStyle(document.documentElement);
+          const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
+          const context = canvas.getContext('2d');
+          const rgb = color => {
+            if (!CSS.supports('color', color)) throw new Error(`Invalid rendered color: ${color}`);
+            context.clearRect(0, 0, 1, 1); context.fillStyle = color; context.fillRect(0, 0, 1, 1);
+            return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+          };
+          const luminance = value => value.map(channel => {
+            const c = channel / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4;
+          }).reduce((sum, c, i) => sum + c * [.2126, .7152, .0722][i], 0);
+          const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
+          const base = rgb(`rgb(${root.getPropertyValue('--xlg-base')})`);
+          const text = rgb(getComputedStyle(document.querySelector('[data-testid=tweetText] span')).color);
+          const name = rgb(getComputedStyle(document.querySelector('[data-testid=User-Name] span')).color);
+          const buttonText = rgb(getComputedStyle(document.querySelector('[data-testid=tweetButtonInline] span')).color);
+          return {
+            accent: root.getPropertyValue('--xlg-accent-rgb').trim(),
+            primary: root.getPropertyValue('--xlg-ui-accent-rgb').trim(),
+            secondary: root.getPropertyValue('--xlg-secondary-rgb').trim(),
+            textContrast: contrast(text, base), nameContrast: contrast(name, base),
+            buttonContrast: Math.min(...['--xlg-control-start-rgb', '--xlg-control-end-rgb'].map(key => contrast(buttonText, rgb(`rgb(${root.getPropertyValue(key)})`)))),
+            overflow: document.documentElement.scrollWidth > innerWidth
+          };
+        });
+        expect(actual.accent).toBe(expected.accent);
+        expect(actual.primary).toBe(expected.interfaceAccent);
+        expect(actual.secondary).toBe(expected.secondary);
+        expect(actual.textContrast, `${theme} ${tone} ${JSON.stringify(color)} post text`).toBeGreaterThanOrEqual(4.5);
+        expect(actual.nameContrast, `${theme} ${tone} ${JSON.stringify(color)} author name`).toBeGreaterThanOrEqual(4.5);
+        expect(actual.buttonContrast, `${theme} ${tone} ${JSON.stringify(color)} button text`).toBeGreaterThanOrEqual(4.5);
+        expect(actual.overflow).toBe(false);
+      }
+      for (const settings of [
+        { tint: 0, blur: 0, opacity: 0 },
+        { tint: 100, blur: 40, opacity: 90 },
+        { lite: true, blur: 40, opacity: 0 }
+      ]) {
+        await apply(page, { theme, ...settings });
+        const actual = await page.evaluate(() => {
+          const root = getComputedStyle(document.documentElement);
+          return { blur: root.getPropertyValue('--xlg-blur'), opacity: root.getPropertyValue('--xlg-opacity'), glow: root.getPropertyValue('--xlg-glow-opacity'), filter: getComputedStyle(document.querySelector('article')).backdropFilter };
+        });
+        if (settings.tint === 0) expect(Number(actual.glow)).toBe(0);
+        if (settings.blur !== undefined) expect(actual.blur).toBe(`${settings.blur}px`);
+        if (settings.opacity !== undefined) expect(Number(actual.opacity)).toBe(settings.opacity / 100);
+        if (settings.lite) expect(actual.filter).toBe('none');
+        if (settings.blur === 0) expect(actual.filter).not.toMatch(/blur\((?!0px\))[^)]+\)/);
+      }
+      await apply(page, { theme });
+      await attachScreenshot(page, info, `${theme}-${tone}-${info.project.use.viewport.width}px`);
+      await apply(page, { theme, enabled: false });
+      await expect(page.locator('html')).not.toHaveAttribute('data-xlg', '');
+      expect(await page.locator('article').evaluate(element => getComputedStyle(element).backdropFilter)).toBe('none');
+      errors();
+    });
+
+    test('surfaces, search dropdown, connected replies and disabled state', async ({ page }, info) => {
+      const errors = failOnPageErrors(page);
+      await fixture(page, theme, info.project.use.colorScheme);
+      const geometry = await page.evaluate(() => {
+        const nav = document.querySelector('[data-xlg-nav]').getBoundingClientRect();
+        const feed = document.querySelector('[data-testid=primaryColumn]').getBoundingClientRect();
+        return { centerError: Math.abs((nav.left + feed.right) / 2 - innerWidth / 2), overlap: nav.right > feed.left + 1, right: feed.right, width: innerWidth };
+      });
+      expect(geometry.centerError).toBeLessThan(1);
+      expect(geometry.overlap).toBe(false);
+      expect(geometry.right).toBeLessThanOrEqual(geometry.width + 1);
+      await page.evaluate(() => {
+        const content = document.querySelector('[data-testid=primaryColumn] > div');
+        content.append(document.querySelector('#notification-fixture').content.cloneNode(true));
+        content.append(document.querySelector('#reply-fixture').content.cloneNode(true));
+        content.querySelector('.toolbar').replaceWith(document.querySelector('#search-toolbar-fixture').content.cloneNode(true));
+      });
+      await expect(page.locator('[data-xlg-conversation]')).toHaveCount(1);
+      await expect(page.locator('[data-xlg-search-popup]')).toHaveCount(1);
+      await page.locator('[aria-label="Search query"]').focus();
+      await settle(page);
+      const result = await page.evaluate(() => {
+        const popup = document.querySelector('[role=listbox]');
+        const option = popup.querySelector('[role=option]');
+        const rect = option.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.bottom - 4);
+        const connector = document.querySelector('.reply-down');
+        const notification = document.querySelector('[data-testid=notification]').getBoundingClientRect();
+        return { clickable: popup.contains(hit), connectorWidth: connector.getBoundingClientRect().width, notificationFits: notification.left >= 0 && notification.right <= innerWidth, popupFits: popup.getBoundingClientRect().right <= innerWidth };
+      });
+      expect(result).toEqual({ clickable: true, connectorWidth: 2, notificationFits: true, popupFits: true });
+      await page.evaluate(() => {
+        history.pushState(null, '', '/sample/status/123');
+        document.querySelector('[data-testid=primaryColumn]').append(document.createElement('span'));
+      });
+      await expect(page.locator('html')).toHaveAttribute('data-xlg-thread', '');
+      const articles = await page.locator('article').evaluateAll(items => items.map(item => ({ radius: getComputedStyle(item).borderRadius, filter: getComputedStyle(item).backdropFilter })));
+      expect(articles.every(item => item.radius === '0px' && item.filter === 'none')).toBe(true);
+      await apply(page, { theme, enabled: false });
+      await expect(page.locator('[data-xlg-conversation]')).toHaveCount(0);
+      expect(await page.locator('[role=listbox]').evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(0, 0, 0)');
+      errors();
+    });
+
+    test('Chat shape, drafts, native bubbles and restored native appearance', async ({ page }, info) => {
+      const errors = failOnPageErrors(page);
+      await fixture(page, theme, info.project.use.colorScheme);
+      await page.evaluate(() => {
+        const primary = document.querySelector('[data-testid=primaryColumn]');
+        primary.innerHTML = '<div><div data-testid="xchatEmbedRoute"></div></div>';
+        const host = primary.querySelector('[data-testid=xchatEmbedRoute]');
+        host.attachShadow({ mode: 'open' }).innerHTML = `<style>
+          *{box-sizing:border-box}[data-xchat-root]{height:100%;background:#000;color:#eee}
+          [data-testid=dm-container]{position:relative;height:100dvh}
+          [data-testid=dm-conversation-header]{height:70px;padding:16px}
+          [data-testid=dm-composer-container]{position:absolute;bottom:0;left:0;right:0;padding:16px}
+          [data-testid=dm-composer-input-container]{padding:8px;background:#191919;border-radius:24px}
+          textarea{width:100%;height:36px;background:transparent;color:inherit}
+          [data-testid=sample-bubble]{width:160px;padding:12px;margin:16px;background:#1e9cf1;border-radius:20px}
+        </style><div data-xchat-root><div data-testid="dm-container"><header data-testid="dm-conversation-header">Sample conversation</header><div data-testid="sample-bubble">Sample message</div><div data-testid="dm-composer-container"><div data-testid="dm-composer-input-container"><textarea aria-label="Sample message draft"></textarea></div></div></div></div>`;
+        history.pushState(null, '', '/i/chat');
+      });
+      const host = page.locator('[data-testid=xchatEmbedRoute]');
+      await expect(host).toHaveAttribute('data-xlg-chat', '');
+      const input = host.locator('textarea');
+      await input.fill('Sample draft');
+      const measure = () => host.evaluate(element => {
+        const shadow = element.shadowRoot;
+        const container = shadow.querySelector('[data-testid=dm-container]');
+        const frame = getComputedStyle(container, '::before');
+        const input = shadow.querySelector('textarea').getBoundingClientRect();
+        return { radius: frame.borderRadius, clip: frame.clipPath, filter: frame.backdropFilter, containerFilter: getComputedStyle(container).backdropFilter, inputFits: input.left >= 0 && input.right <= innerWidth && input.bottom <= innerHeight, bubble: getComputedStyle(shadow.querySelector('[data-testid=sample-bubble]')).backgroundColor };
+      });
+      await expect.poll(async () => (await measure()).filter).toContain('blur');
+      const style = await measure();
+      expect(style.inputFits).toBe(true);
+      expect(style.bubble).toBe('rgb(30, 156, 241)');
+      expect(style.containerFilter).toBe('none');
+      if (definition.chatShape === 'rounded') expect(style.radius).not.toBe('0px');
+      else expect(style.radius).toBe('0px');
+      if (definition.chatShape === 'cut') expect(style.clip).toContain('polygon');
+      await apply(page, { theme, lite: true });
+      expect((await measure()).filter).toBe('none');
+      await apply(page, { theme, enabled: false });
+      await expect(input).toHaveValue('Sample draft');
+      expect(await host.evaluate(element => getComputedStyle(element.shadowRoot.querySelector('[data-xchat-root]')).backgroundColor)).toBe('rgb(0, 0, 0)');
+      errors();
+    });
+  });
+}

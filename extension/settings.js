@@ -2,7 +2,24 @@
 globalThis.XGlow = (() => {
   const storageKey = 'xGlass';
 
-  const themes = Object.freeze(['glass', 'cyberpunk', 'hud']);
+  const themeDefinitions = Object.freeze({
+    glass: Object.freeze({
+      label: 'Liquid Glass', stylesheet: 'glass.css',
+      icon: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM7 7h10',
+      marker: null, chatShape: 'rounded', supportsAccent: true, palette: glassPalette
+    }),
+    cyberpunk: Object.freeze({
+      label: 'Cyberpunk Neon', stylesheet: 'cyberpunk.css',
+      icon: 'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8h8v8H8z',
+      marker: 'data-xlg-cyber', chatShape: 'square', supportsAccent: true, palette: cyberPalette
+    }),
+    hud: Object.freeze({
+      label: 'Cyberpunk HUD', stylesheet: 'hud.css',
+      icon: 'M7 3h14v14l-4 4H3V7zM7 9h10M7 13h7',
+      marker: 'data-xlg-hud', chatShape: 'cut', supportsAccent: false, palette: hudPalette
+    })
+  });
+  const themes = Object.freeze(Object.keys(themeDefinitions));
 
   const defaults = Object.freeze({
     enabled: true,
@@ -11,7 +28,6 @@ globalThis.XGlow = (() => {
     tint: 50,
     blur: 10,
     opacity: 0,
-    cards: true,
     lite: false,
     sidebar: false,
     theme: 'glass'
@@ -55,7 +71,6 @@ globalThis.XGlow = (() => {
       tint: clamp(value.tint, 0, 100, defaults.tint),
       blur: clamp(value.blur, 0, 40, defaults.blur),
       opacity: clamp(value.opacity, 0, 90, defaults.opacity),
-      cards: boolean(value.cards, defaults.cards),
       lite: boolean(value.lite, defaults.lite),
       sidebar: boolean(value.sidebar, defaults.sidebar),
       // `cyberpunk: true` was the toggle that preceded the theme choice.
@@ -139,7 +154,7 @@ globalThis.XGlow = (() => {
   }
 
   const HUD_RED = [255, 92, 82], HUD_CYAN = [94, 242, 255];
-  const HUD_RED_LIGHT = [196, 28, 40], HUD_TEAL_LIGHT = [0, 122, 142];
+  const HUD_RED_LIGHT = [196, 28, 40], HUD_TEAL_LIGHT = [0, 119, 138];
 
   /* The HUD theme ignores the accent: it is a fixed palette of alarm red for
      the interface and cyan for whatever is active, over dark maroon with an
@@ -171,18 +186,11 @@ globalThis.XGlow = (() => {
     };
   }
 
-  /* Derives every themed color from the accent, tint and X's own tone. */
-  function palette(value, tone = 'dark') {
-    const settings = normalize(value);
-    if (settings.theme === 'hud') return hudPalette(settings, tone);
-    const rgb = accentChannels(settings);
+  function glassPalette(settings, tone, rgb, controlEnd) {
     const strength = settings.tint / 100;
     const light = tone === 'light';
     const base = mix(light ? WHITE : [18, 20, 24], rgb, strength * (light ? .08 : .24));
     const background = mix(light ? [238, 242, 246] : [8, 10, 14], rgb, strength * (light ? .16 : .09));
-    // Primary buttons render dark text on the accent gradient.
-    const controlEnd = readableVariant(rgb, WHITE, value => value >= .25);
-    if (settings.theme === 'cyberpunk') return cyberPalette(settings, tone, rgb, controlEnd);
     // Accents used as text or outlines must contrast with the page.
     const interfaceAccent = light ? readableVariant(rgb, BLACK, value => value <= .3) : controlEnd;
     return {
@@ -204,5 +212,13 @@ globalThis.XGlow = (() => {
     };
   }
 
-  return { storageKey, defaults, accents, themes, normalize, colorHex, palette };
+  /* Every registered theme receives the same validated color and controls. */
+  function palette(value, tone = 'dark') {
+    const settings = normalize(value);
+    const rgb = accentChannels(settings);
+    const controlEnd = readableVariant(rgb, WHITE, value => value >= .25);
+    return themeDefinitions[settings.theme].palette(settings, tone, rgb, controlEnd);
+  }
+
+  return { storageKey, defaults, accents, themes, themeDefinitions, normalize, colorHex, palette };
 })();

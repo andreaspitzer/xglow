@@ -102,7 +102,7 @@
   check(getComputedStyle(nav, '::before').backdropFilter === 'none', 'Lightweight mode also disables blur in the navigation');
   check(getComputedStyle(notification).backdropFilter === 'none', 'Lightweight mode also applies to aggregated notifications');
   await chrome.storage.local.set({ xGlass: { cards: false } }); await settle();
-  check(getComputedStyle(notification).backdropFilter === 'none' && getComputedStyle(notification).borderRadius === '0px', 'Disabling cards also restores notifications');
+  check(getComputedStyle(notification).backdropFilter !== 'none' && getComputedStyle(notification).borderRadius === '22px', 'The retired cards preference cannot disable notification surfaces');
   await chrome.storage.local.set({ xGlass: {} });
   await settle();
   check(root.hasAttribute('data-xlg'), 'Theme restored after the checks');

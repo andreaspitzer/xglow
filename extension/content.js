@@ -98,8 +98,9 @@
     for (const host of document.querySelectorAll(CHAT_HOSTS)) {
       host.toggleAttribute('data-xlg-chat', settings.enabled);
       host.toggleAttribute('data-xlg-chat-lite', settings.lite);
-      host.toggleAttribute('data-xlg-chat-square', settings.theme !== 'glass');
-      host.toggleAttribute('data-xlg-chat-hud', settings.theme === 'hud');
+      const shape = XGlow.themeDefinitions[settings.theme].chatShape;
+      host.toggleAttribute('data-xlg-chat-square', shape !== 'rounded');
+      host.toggleAttribute('data-xlg-chat-hud', shape === 'cut');
       let state = chatHosts.get(host);
       if (!state) chatHosts.set(host, state = { attempts: 0 });
       const shadow = host.shadowRoot;
@@ -309,7 +310,7 @@
   }
 
   function syncConversations(container) {
-    const groups = settings.enabled && settings.cards && !isThread() ? groupConnectedCells(container) : [];
+    const groups = settings.enabled && !isThread() ? groupConnectedCells(container) : [];
     for (const group of groups) paintConversation(group);
     const active = new Set(groups.flat().map(item => item.cell));
     const starts = new Set(groups.map(group => group[0].cell));
@@ -488,10 +489,12 @@
   function apply() {
     root.toggleAttribute('data-xlg', settings.enabled);
     root.setAttribute('data-xlg-tone', nativeTone);
-    root.toggleAttribute('data-xlg-cards', settings.cards);
+    root.toggleAttribute('data-xlg-cards', settings.enabled);
     root.toggleAttribute('data-xlg-lite', settings.lite);
-    root.toggleAttribute('data-xlg-cyber', settings.theme === 'cyberpunk');
-    root.toggleAttribute('data-xlg-hud', settings.theme === 'hud');
+    root.setAttribute('data-xlg-theme', settings.theme);
+    for (const [id, theme] of Object.entries(XGlow.themeDefinitions)) {
+      if (theme.marker) root.toggleAttribute(theme.marker, settings.theme === id);
+    }
     root.toggleAttribute('data-xlg-hide-sidebar', !settings.sidebar);
     const palette = XGlow.palette(settings, nativeTone);
     for (const [property, key] of PALETTE_PROPERTIES) root.style.setProperty(property, palette[key]);

@@ -6,7 +6,7 @@ A liquid glass makeover for X. Same feed, a more personal look.
 
 - **Glass throughout X.** Translucent cards, soft reflections and rounded surfaces across the feed, notifications, profile covers and Chat.
 - **Your colors, your atmosphere.** Seven presets or any HEX color, with adjustable tint, blur and opacity. Changes apply instantly.
-- **Three themes, one dropdown.** Liquid Glass, Cyberpunk Neon (grid, scanlines and corner brackets, with your accent plus a derived partner color) and Cyberpunk HUD (alarm red and cyan, chamfered panels and a viewfinder frame, after the game's interface). HUD has its own fixed palette.
+- **Pick a theme, then a color.** Liquid Glass and Cyberpunk Neon support all seven color presets and custom HEX colors. Neon derives a second accent from your selection; Cyberpunk HUD uses a fixed red and cyan palette. The settings panel always stays neutral.
 - **A focused, centered feed.** Hide the right sidebar and give your timeline room to breathe. Bring it back with one toggle.
 - **Threads stay connected.** Related posts share a glass frame; post-detail replies keep X’s familiar flow and connection lines.
 - **Light or dark.** Follows X’s appearance, with a lightweight mode and reduced-motion support.
@@ -58,9 +58,10 @@ The runtime processes page structure, interface colors, the current X route and 
 
 ## Development
 
-Development tools require Node.js 20 or newer. There are no npm dependencies.
+Development tools require Node.js 20 or newer. The extension runtime has no dependencies; browser tests use Playwright as a development dependency.
 
 ```sh
+npm ci
 npm run check
 npm test
 npm run build:preview
@@ -77,6 +78,38 @@ unlocalhost url xglow
 The saved development command is `npm run dev`. It serves generated files from `public/` and uses the port provided by unlocalhost. `public/` is generated and excluded from Git.
 
 See [Development](docs/DEVELOPMENT.md) for browser regression suites and DOM integration constraints, and [Contributing](CONTRIBUTING.md) for change guidelines.
+
+## Create a theme
+
+Themes use one shared registry, palette interface and neutral settings panel. Liquid Glass and Cyberpunk Neon support the common color picker; HUD uses a fixed palette and hides color controls. Adding a theme generates its card automatically; its stylesheet must also be listed in the manifest.
+
+Follow the [theme contribution contract](docs/THEMES.md) for registration, palette tokens, CSS scope and required validation. Coding agents must read [AGENTS.md](AGENTS.md) before theme work. New themes preserve the shared layout, connected replies, Chat behavior and saved preferences.
+
+To add a theme:
+
+1. Register a stable theme ID and palette function in `extension/settings.js`. Declare whether it supports the shared color picker with `supportsAccent`.
+2. Add a local stylesheet scoped to that theme ID and list it in `extension/manifest.json`, after `glass.css`.
+3. Keep the settings panel neutral and preserve the shared layout, native media, connected replies and Chat behavior.
+4. Validate the theme using the checks below and the [live review matrix](docs/THEMES.md#validation-and-pr-evidence).
+
+Before opening a theme PR, install the test browser once and run the complete check from your registered unlocalhost checkout:
+
+```sh
+npx playwright install --only-shell chromium
+npm run test:themes
+```
+
+The command runs source checks, Node tests, every registered theme in light/dark at three viewport sizes, settings behavior and the existing layout regressions. A failed check exits with an error. Screenshots, traces and an HTML report go to `artifacts/themes/` and stay out of Git. View the report with `npx playwright show-report artifacts/themes/report`. GitHub Actions runs the same checks and attaches the report to the workflow run.
+
+## Open a pull request
+
+1. Fork this repository, clone your fork and create a branch from the latest `main`, for example `feat/paper-theme`.
+2. Run `npm ci`, follow [Contributing](CONTRIBUTING.md) and make a focused change. For themes, follow the contract above.
+3. Run the required checks and inspect the report. Resolve failures; if an existing failure must remain unchanged, explain it explicitly. Never skip checks or weaken assertions to obtain a pass.
+4. Commit source, tests and documentation, then push your branch to your fork. Keep generated reports, local files and private screenshots out of Git.
+5. On GitHub, open a PR from your branch to **`monteduro/xglow:main`**. Include the change's purpose, theme ID, color support, checks actually run, sample-content screenshots in light/dark, and whether real X and Chat were verified.
+
+Adding a theme does not require changing the version or creating a release.
 
 ## Package a release
 

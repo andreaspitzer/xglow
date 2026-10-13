@@ -32,20 +32,22 @@ test('Amber defaults and explicit zero effects survive storage normalization', (
 });
 
 test('default preferences are exactly the shipped baseline', () => {
-  assert.deepEqual({ ...XGlow.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 10, opacity: 0, cards: true, lite: false, sidebar: false, theme: 'glass' });
+  assert.deepEqual({ ...XGlow.defaults }, { enabled: true, accent: 'amber', customColor: '#97a7ff', tint: 50, blur: 10, opacity: 0, lite: false, sidebar: false, theme: 'glass' });
   assert.ok(Object.isFrozen(XGlow.defaults));
   assert.equal(XGlow.storageKey, 'xGlass');
 });
 
 test('disabling and valid customizations survive normalization', () => {
-  const value = { enabled: false, accent: 'ocean', blur: 12, opacity: 75, cards: false, lite: true, sidebar: true };
+  const value = { enabled: false, accent: 'ocean', blur: 12, opacity: 75, lite: true, sidebar: true };
   assert.deepEqual(XGlow.normalize(value), { ...XGlow.defaults, ...value });
 });
 
-test('preferences saved by earlier versions keep their values', () => {
+test('legacy preferences retain appearance settings and discard the retired cards toggle', () => {
   // Before custom colors and tint, and before the sidebar toggle.
   const legacy = { enabled: true, accent: 'rose', blur: 18, opacity: 49, cards: false, lite: false };
-  assert.deepEqual(XGlow.normalize(legacy), { ...XGlow.defaults, ...legacy });
+  const retained = { enabled: true, accent: 'rose', blur: 18, opacity: 49, lite: false };
+  assert.deepEqual(XGlow.normalize(legacy), { ...XGlow.defaults, ...retained });
+  assert.ok(!('cards' in XGlow.normalize(legacy)));
   assert.equal(XGlow.normalize({ accent: 'aurora', blur: 27 }).sidebar, false);
 });
 
@@ -82,7 +84,7 @@ test('black and white custom themes retain readable controls', () => {
   }
 });
 
-test('stylesheet fallbacks and popup accent match the default palette', () => {
+test('stylesheet fallbacks match the default palette', () => {
   const css = extensionFile('glass.css');
   const token = name => css.match(new RegExp(`${name}:\\s*([^;]+);`))[1].trim();
   const palette = XGlow.palette(XGlow.defaults);
@@ -97,21 +99,21 @@ test('stylesheet fallbacks and popup accent match the default palette', () => {
   assert.equal(normalizeNumbers(token('--xlg-border')), normalizeNumbers(palette.border));
   assert.equal(token('--xlg-blur'), `${XGlow.defaults.blur}px`);
   assert.equal(Number(token('--xlg-opacity')), XGlow.defaults.opacity / 100);
-  assert.match(extensionFile('popup.css'), new RegExp(`--accent:\\s*${palette.interfaceHex};`));
 });
 
 test('popup offers every accent and every stored preference', () => {
   const html = extensionFile('popup.html');
   for (const accent of [...Object.keys(XGlow.accents), 'custom']) assert.match(html, new RegExp(`data-accent="${accent}"`));
-  for (const id of ['enabled', 'tint', 'blur', 'opacity', 'cards', 'lite', 'sidebar', 'theme', 'customColor', 'customHex']) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ['enabled', 'tint', 'blur', 'opacity', 'lite', 'sidebar', 'themeOptions', 'customColor', 'customHex']) assert.match(html, new RegExp(`id="${id}"`));
+  assert.doesNotMatch(html, /id="cards"/);
   for (const [id, max] of [['tint', 100], ['blur', 40], ['opacity', 90]]) assert.match(html, new RegExp(`id="${id}" type="range" min="0" max="${max}"`));
 });
 
 test('the theme defaults to glass and invalid values fall back to it', () => {
   assert.equal(XGlow.defaults.theme, 'glass');
-  assert.deepEqual([...XGlow.themes], ['glass', 'cyberpunk', 'hud']);
+  for (const id of ['glass', 'cyberpunk', 'hud']) assert.ok(XGlow.themes.includes(id));
   for (const theme of XGlow.themes) assert.equal(XGlow.normalize({ theme }).theme, theme);
-  for (const theme of ['neon', 'HUD', '', 1, null, undefined, {}]) assert.equal(XGlow.normalize({ theme }).theme, 'glass');
+  for (const theme of ['__unregistered__', 'HUD', '', 1, null, undefined, {}]) assert.equal(XGlow.normalize({ theme }).theme, 'glass');
   assert.equal(XGlow.normalize({ theme: 'hud' }).tint, XGlow.defaults.tint);
 });
 
@@ -122,7 +124,7 @@ test('preferences from the cyberpunk toggle migrate to the theme choice', () => 
   assert.equal(XGlow.normalize({ theme: 'hud', cyberpunk: true }).theme, 'hud');
   assert.ok(!('cyberpunk' in XGlow.normalize({ cyberpunk: true })));
   // Preferences saved before themes existed keep every value.
-  const legacy = { enabled: true, accent: 'rose', blur: 18, opacity: 49, cards: false, lite: false, sidebar: true };
+  const legacy = { enabled: true, accent: 'rose', blur: 18, opacity: 49, lite: false, sidebar: true };
   assert.deepEqual(XGlow.normalize(legacy), { ...XGlow.defaults, ...legacy });
 });
 
@@ -135,6 +137,53 @@ test('every theme palette has the same keys and the glass palette is unchanged',
       assert.ok(channels(themed.secondary).length === 3);
     }
     assert.deepEqual(XGlow.palette({ accent: 'ocean', theme: 'glass' }, tone), XGlow.palette({ accent: 'ocean' }, tone));
+  }
+});
+
+test('every registered theme honors its color capability and returns valid palette values', () => {
+  const rgbKeys = ['accent', 'interfaceAccent', 'secondary', 'controlStart', 'controlEnd', 'base', 'glowSecondary', 'glowTertiary'];
+  const opacityKeys = ['glowOpacity', 'glowSecondaryOpacity', 'glowTertiaryOpacity'];
+  const validRgb = (value, context) => {
+    assert.match(value, /^\d+,\s*\d+,\s*\d+$/, context);
+    assert.ok(channels(value).every(channel => channel >= 0 && channel <= 255), context);
+  };
+  const keys = Object.keys(XGlow.palette()).sort();
+  for (const [theme, definition] of Object.entries(XGlow.themeDefinitions)) {
+    for (const tone of ['dark', 'light']) {
+      for (const tint of [0, 50, 100]) {
+        const fixed = XGlow.palette({ theme, tint }, tone);
+        for (const accent of [...Object.keys(XGlow.accents), 'custom']) {
+          for (const customColor of ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']) {
+            const settings = { theme, tint, accent, customColor };
+            const palette = XGlow.palette(settings, tone);
+            const context = `${theme} ${tone} ${tint} ${accent} ${customColor}`;
+            assert.deepEqual(Object.keys(palette).sort(), keys, context);
+            for (const key of rgbKeys) validRgb(palette[key], `${context} ${key}`);
+            for (const key of ['hex', 'interfaceHex']) assert.match(palette[key], /^#[\da-f]{6}$/, context);
+            const background = palette.background.match(/^rgb\(([^)]+)\)$/);
+            assert.ok(background, context);
+            validRgb(background[1], context);
+            const border = palette.border.match(/^rgba\((\d+,\s*\d+,\s*\d+),\s*([\d.]+)\)$/);
+            assert.ok(border, context);
+            validRgb(border[1], context);
+            assert.ok(Number.isFinite(Number(border[2])) && Number(border[2]) >= 0 && Number(border[2]) <= 1, context);
+            for (const key of opacityKeys) {
+              assert.equal(typeof palette[key], 'string', context);
+              const opacity = Number(palette[key]);
+              assert.ok(Number.isFinite(opacity) && opacity >= 0 && opacity <= 1, context);
+              if (tint === 0) assert.equal(opacity, 0, context);
+            }
+            if (definition.supportsAccent) {
+              const selected = XGlow.palette({ ...settings, theme: 'glass' }, tone);
+              assert.equal(palette.hex, selected.hex, context);
+              assert.equal(palette.accent, selected.accent, context);
+            } else {
+              assert.deepEqual(palette, fixed, context);
+            }
+          }
+        }
+      }
+    }
   }
 });
 
@@ -188,7 +237,7 @@ test('the HUD palette is fixed red and cyan whatever the accent, and stays legib
 
 test('theme stylesheets are gated, loaded in order and fallbacks match', () => {
   const manifest = JSON.parse(extensionFile('manifest.json'));
-  assert.deepEqual(manifest.content_scripts[0].css, ['glass.css', 'cyberpunk.css', 'hud.css']);
+  assert.deepEqual(manifest.content_scripts[0].css, Object.values(XGlow.themeDefinitions).map(theme => theme.stylesheet));
   const topLevel = list => {
     const parts = []; let depth = 0, start = 0;
     [...list].forEach((char, i) => {
@@ -198,23 +247,51 @@ test('theme stylesheets are gated, loaded in order and fallbacks match', () => {
     });
     return [...parts, list.slice(start)].map(part => part.trim());
   };
-  for (const [file, gate] of [['cyberpunk.css', 'html[data-xlg][data-xlg-cyber]'], ['hud.css', 'html[data-xlg][data-xlg-hud]']]) {
-    const css = extensionFile(file).replace(/\/\*[\s\S]*?\*\//g, '');
-    const preludes = css.replace(/\{[^{}]*\}/g, '\u0000').split('\u0000').map(part => part.replace(/@media[^{]*\{/g, '').replace(/\}/g, '').trim()).filter(Boolean);
+  for (const [id, theme] of Object.entries(XGlow.themeDefinitions)) {
+    if (id === 'glass') continue;
+    const file = theme.stylesheet;
+    const gates = [`html[data-xlg][data-xlg-theme="${id}"]`, `html[data-xlg][data-xlg-theme='${id}']`, `html[data-xlg][data-xlg-theme=${id}]`];
+    if (theme.marker) gates.push(`html[data-xlg][${theme.marker}]`);
+    let css = extensionFile(file).replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.doesNotMatch(css, /@import\b|@font-face\b|url\(\s*['"]?(?:https?:|\/\/)/i, `${id}: theme assets must stay local`);
+    for (const property of css.matchAll(/(--[\w-]+)\s*:/g)) assert.ok(property[1].startsWith('--xlg-'), `${id}: unnamespaced token ${property[1]}`);
+    css = css.replace(/@keyframes\s+([\w-]+)\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, (block, name) => {
+      assert.ok(name.startsWith(`xlg-${id}-`), `${id}: unnamespaced keyframe ${name}`);
+      return '';
+    });
+    const preludes = css.replace(/\{[^{}]*\}/g, '\u0000').split('\u0000').map(part => part.replace(/@(?:media|supports|container|layer)[^{]*\{/g, '').replace(/\}/g, '').trim()).filter(Boolean);
     const selectors = preludes.flatMap(topLevel);
-    assert.ok(selectors.length > 20, file);
-    for (const selector of selectors) assert.ok(selector.startsWith(gate), `Ungated selector in ${file}: ${selector}`);
+    assert.ok(selectors.length > 0, file);
+    for (const selector of selectors) assert.ok(gates.some(gate => selector.startsWith(gate)), `Ungated selector in ${file}: ${selector}`);
   }
   const fallback = extensionFile('glass.css').match(/--xlg-secondary-rgb:\s*([^;]+);/)[1].trim();
   assert.equal(fallback.replace(/\s+/g, ''), XGlow.palette(XGlow.defaults).secondary.replace(/\s+/g, ''));
 });
 
-test('popup offers the three themes in a select and keeps the accent picker', () => {
+test('theme registry drives the catalog, palettes, style loading and Chat shapes', () => {
+  assert.ok(Object.isFrozen(XGlow.themeDefinitions));
+  assert.deepEqual(Object.keys(XGlow.themeDefinitions), [...XGlow.themes]);
+  const stylesheets = Object.values(XGlow.themeDefinitions).map(theme => theme.stylesheet);
+  assert.equal(new Set(stylesheets).size, stylesheets.length);
+  for (const [id, theme] of Object.entries(XGlow.themeDefinitions)) {
+    assert.match(id, /^[a-z][a-z0-9-]*$/);
+    assert.ok(Object.isFrozen(theme));
+    assert.ok(theme.label && theme.icon, id);
+    assert.ok(['rounded', 'square', 'cut'].includes(theme.chatShape), id);
+    assert.equal(typeof theme.supportsAccent, 'boolean', id);
+    assert.equal(typeof theme.palette, 'function');
+    assert.match(theme.stylesheet, /^[a-z][a-z0-9-]*\.css$/);
+    assert.ok(fs.existsSync(path.join(__dirname, '..', 'extension', theme.stylesheet)));
+    if (theme.marker) assert.match(theme.marker, /^data-xlg-[a-z-]+$/);
+  }
   const html = extensionFile('popup.html');
-  const select = html.match(/<select id="theme">([\s\S]*?)<\/select>/)[1];
-  assert.deepEqual([...select.matchAll(/value="(\w+)"/g)].map(match => match[1]), [...XGlow.themes]);
+  assert.match(html, /<legend>Theme<\/legend>/);
+  assert.match(html, /<legend>Color<\/legend>/);
+  assert.match(html, /id="themeOptions"/);
   assert.match(html, /id="colors"/);
-  assert.doesNotMatch(html, /id="cyberpunk"/);
+  assert.doesNotMatch(html, /neonAccent|neonControls/);
+  assert.doesNotMatch(extensionFile('popup.css'), /data-theme/);
+  assert.doesNotMatch(extensionFile('popup.js'), /document\.documentElement\.(dataset|style)/);
 });
 
 test('manifest loads only local files and limits injection to X/Twitter', () => {

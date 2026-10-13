@@ -52,7 +52,9 @@
   await chrome.storage.local.set({ xGlass: { lite: true } }); await wait();
   check(surface().backdropFilter === 'none' && surface().backgroundColor.includes('0.88'), 'Lightweight mode keeps the frame without blur');
   await chrome.storage.local.set({ xGlass: { cards: false } }); await wait();
-  check(!group.querySelector('[data-xlg-conversation]') && getComputedStyle(cells[0].querySelector('article')).padding === '0px 16px', 'Disabling cards restores native spacing');
+  check(group.querySelector('[data-xlg-conversation]') && surface().backdropFilter !== 'none', 'The retired cards preference cannot disable conversation frames');
+  await chrome.storage.local.set({ xGlass: { enabled: false } }); await wait();
+  check(!group.querySelector('[data-xlg-conversation]') && getComputedStyle(cells[0].querySelector('article')).padding === '0px 16px', 'Disabling the extension restores native spacing');
   group.remove(); await chrome.storage.local.set({ xGlass: {} }); await wait();
   return checks;
 })()
