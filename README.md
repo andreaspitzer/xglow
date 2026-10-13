@@ -67,7 +67,7 @@ npm test
 npm run build:preview
 ```
 
-Launch the generated local demo through the **unlocalhost CLI**:
+Launch the generated local demo through the **[unlocalhost CLI](https://github.com/monteduro/unlocalhost)**:
 
 ```sh
 unlocalhost --yes setup . --slug xglow --features https,dev
