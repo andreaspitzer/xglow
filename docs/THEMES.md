@@ -80,7 +80,6 @@ html[data-xlg][data-xlg-theme="paper"] [data-xlg-toolbar] {
 ```
 
 - The `data-xlg` gate must be present so disabling XGlow restores X. Reuse markers such as `data-xlg-toolbar`, `data-xlg-panel` and `data-xlg-conversation`.
-- A theme that redeclares the card background, including in lightweight mode, keeps `var(--xlg-card-tint)` as its first layer so unread notifications remain recognizable.
 - Use `--xlg-*` properties. Give theme-only tokens a distinct prefix such as `--xlg-paper-*`; use the shared palette for accent and surface colors.
 - New themes use the generic theme-ID scope. `data-xlg-cyber` and `data-xlg-hud` are legacy gates, retained for the existing themes.
 - Keep `glass.css` as the shared layout/base. Do not rewrite other themes or popup styling when adding a theme.
@@ -90,6 +89,20 @@ html[data-xlg][data-xlg-theme="paper"] [data-xlg-toolbar] {
 - Keep dropdowns free of clipping and native media/fullscreen positioning intact. Restrict backdrop filters to the existing surface layers.
 - Chat styling lives in open shadow roots. It inherits the shared palette and registered shape; a new theme must not create a separate Chat controller.
 - No telemetry, requests, remote code, permissions or account actions belong in a theme contribution.
+
+## Shared surfaces
+
+`glass.css` and `content.js` provide these surfaces to every theme. A new theme inherits them without extra rules; it may restyle them with its own scoped selectors, but must keep the behavior. The theme matrix checks each of them for every registered theme.
+
+| Surface | Marker | Inherited behavior | Theme contract |
+| --- | --- | --- | --- |
+| Unread notifications | `data-xlg-unread` | `--xlg-card-tint` layer and accent border | A theme that redeclares the card background, including in lightweight mode, keeps `var(--xlg-card-tint)` as the first layer. |
+| Column search header | `data-xlg-search-row`, `data-xlg-search-header` | Even 8px inset around the field, back and settings buttons and the tabs | Do not change the row padding or the buttons' margins. |
+| Tabs below a search field | `[data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]` | Inset pill on `::before` for hover and selection | To keep a full-height treatment, set `content: none` on the pseudo-element and style the tab itself, as Cyberpunk Neon and HUD do. |
+| "Show N posts" row | `data-xlg-new-posts` | Pill on `::before`, spaced like the cards | Shape it through the row's `border-radius`, which the pill inherits. |
+| Menus | `[role="menu"]` around `[data-testid="Dropdown"]` | Native layer cleared, so only the themed menu shows | Style `[data-testid="Dropdown"]`. |
+| Centered modals | `data-xlg-modal`, `data-xlg-modal-bar` | Blurred, tinted mask; themed panel; transparent sticky bars | Give `[data-xlg-modal]` the same shape as the theme's panels, for example by adding it to the selector list that shapes `[data-xlg-panel]`. |
+| Navigation focus | `header[role="banner"] nav` links | Focus ring on the visible pill, not the whole row | Change only the ring color, on the link's inner `div`. |
 
 ## Validation and PR evidence
 

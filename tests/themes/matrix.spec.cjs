@@ -104,11 +104,58 @@ for (const [theme, definition] of themes) {
         return { clickable: popup.contains(hit), connectorWidth: connector.getBoundingClientRect().width, notificationFits: notification.left >= 0 && notification.right <= innerWidth, popupFits: popup.getBoundingClientRect().right <= innerWidth };
       });
       expect(result).toEqual({ clickable: true, connectorWidth: 2, notificationFits: true, popupFits: true });
+      // Shared surfaces every theme inherits: themes may restyle them, not break them.
+      const shared = await page.evaluate(() => {
+        const bar = document.querySelector('.search-toolbar').getBoundingClientRect();
+        const field = document.querySelector('.search-field').getBoundingClientRect();
+        const tabs = document.querySelector('.search-toolbar [role=tablist]').getBoundingClientRect();
+        const back = document.querySelector('[data-testid=app-bar-back]').getBoundingClientRect();
+        const settings = document.querySelector('[data-testid=settingsAppBar]').getBoundingClientRect();
+        const tab = document.querySelector('.search-toolbar [role=tab][aria-selected=true]');
+        const pill = getComputedStyle(tab, '::before'), tabStyle = getComputedStyle(tab);
+        const selected = pill.content !== 'none'
+          ? (parseFloat(pill.top) > 0 && pill.backgroundColor !== 'rgba(0, 0, 0, 0)' ? 'inset pill' : 'broken pill')
+          : (tabStyle.backgroundImage !== 'none' || tabStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' ? 'theme treatment' : 'not highlighted');
+        const newPosts = document.querySelector('[data-xlg-new-posts]'), row = newPosts.getBoundingClientRect(), rowPill = getComputedStyle(newPosts, '::before');
+        const card = document.querySelector('article[data-testid=tweet]'), cardStyle = getComputedStyle(card);
+        const link = document.querySelector('header nav a');
+        link.focus();
+        const focus = { visible: link.matches(':focus-visible'), link: getComputedStyle(link).outlineStyle, pill: getComputedStyle(link.firstElementChild).outlineStyle };
+        link.blur();
+        return {
+          insets: [field.top - bar.top, tabs.top - field.bottom, back.left - bar.left, bar.right - settings.right, field.left - back.right],
+          selected,
+          newPostsGaps: [row.top + parseFloat(rowPill.top) - document.querySelector('[data-xlg-composer]').getBoundingClientRect().bottom, card.getBoundingClientRect().top - (row.bottom - parseFloat(rowPill.bottom))],
+          cardGap: parseFloat(cardStyle.marginTop) + parseFloat(cardStyle.marginBottom),
+          focus
+        };
+      });
+      expect(shared.insets, `${theme} search header insets`).toEqual([8, 8, 8, 8, 8]);
+      expect(['inset pill', 'theme treatment'], `${theme} selected search tab: ${shared.selected}`).toContain(shared.selected);
+      expect(shared.newPostsGaps, `${theme} new-posts pill spacing`).toEqual([shared.cardGap, shared.cardGap]);
+      expect(shared.focus, `${theme} navigation focus ring`).toEqual({ visible: true, link: 'none', pill: 'solid' });
       await page.evaluate(() => {
         const content = document.querySelector('[data-testid=primaryColumn] > div');
         content.append(document.querySelector('#unread-notification-fixture').content.cloneNode(true));
       });
       await expect(page.locator('[data-xlg-unread]')).toHaveCount(1);
+      const menuLayer = await page.evaluate(() => {
+        document.body.append(document.querySelector('#menu-fixture').content.cloneNode(true));
+        const layer = getComputedStyle(document.querySelector('.menu-layer'));
+        const result = { background: layer.backgroundColor, shadow: layer.boxShadow, overflow: layer.overflow };
+        document.querySelector('.menu-layer').remove();
+        return result;
+      });
+      expect(menuLayer, `${theme} menu layer behind the themed dropdown`).toEqual({ background: 'rgba(0, 0, 0, 0)', shadow: 'none', overflow: 'visible' });
+      await page.evaluate(() => document.body.append(document.querySelector('#modal-fixture').content.cloneNode(true)));
+      await expect(page.locator('[data-xlg-modal]')).toHaveCount(1);
+      const modal = await page.evaluate(() => {
+        const panel = getComputedStyle(document.querySelector('.modal-panel'));
+        const result = { radius: panel.borderTopLeftRadius === getComputedStyle(document.querySelector('[data-xlg-panel]')).borderTopLeftRadius, opaque: panel.backgroundColor === 'rgb(20, 20, 20)', blur: getComputedStyle(document.querySelector('[data-testid=mask]')).backdropFilter.includes('blur') };
+        document.querySelector('#layers').remove();
+        return result;
+      });
+      expect(modal, `${theme} centered modal: same shape as the theme's panels, themed surface, blurred page`).toEqual({ radius: true, opaque: false, blur: true });
       for (const lite of [false, true]) {
         await apply(page, { theme, lite });
         const layers = await page.evaluate(() => ['.unread-notification', '.hovered-notification'].map(selector => getComputedStyle(document.querySelector(selector)).backgroundImage));
