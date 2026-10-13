@@ -11,7 +11,7 @@ A liquid glass makeover for X. Same feed, a more personal look.
 - **Threads stay connected.** Related posts share a glass frame; post-detail replies keep X’s familiar flow and connection lines.
 - **Light or dark.** Follows X’s appearance, with a lightweight mode and reduced-motion support.
 - **Local and private.** No analytics, external services, API keys or account actions. Settings stay on your device.
-- **Open source, easy to install.** Load the extension directly in Chrome, with no build step or dependencies.
+- **Open source, easy to install.** Load the extension directly in Chrome, with no build step or dependencies. Safari on macOS is supported too.
 
 **[Download the latest release](https://github.com/monteduro/xglow/releases/latest)** · **[Installation instructions](#install)**
 
@@ -33,6 +33,8 @@ Default appearance: **Amber**, **50% tint**, **10 px blur**, **0% glass opacity*
 
 ## Install
 
+### Chrome
+
 1. Open the [latest release](https://github.com/monteduro/xglow/releases/latest) and download the **`xglow-<version>.zip`** asset.
 2. Extract the ZIP into a folder you will keep on your computer.
 3. Open **`chrome://extensions`** in Chrome and enable **Developer mode** in the top-right corner.
@@ -46,13 +48,37 @@ No build step, account, API key or server is needed to use the extension. Chrome
 
 Chrome Web Store publication is being prepared; there is no Store listing yet. Installation currently uses the GitHub release above.
 
+### Safari (macOS)
+
+Safari 16.4 or newer runs the same extension. Safari only loads extensions that are wrapped in an app, or temporary extensions for testing.
+
+**Try it without Xcode** (recent Safari versions):
+
+1. Run `npm run build:safari`. This creates `dist/xglow-safari-<version>.zip` and the folder `dist/safari/XGlow/`.
+2. In Safari, open **Settings → Advanced** and select **Show features for web developers**.
+3. Open **Settings → Developer** and select **Allow unsigned extensions**.
+4. On the same tab, click **Add Temporary Extension…** and select the ZIP or the folder.
+5. Open **Settings → Extensions**, select **XGlow** and allow it on `x.com`. Reload your X tabs.
+
+Safari removes temporary extensions after 24 hours or when you quit Safari, and resets **Allow unsigned extensions** when it quits.
+
+**Install it as an app** (needs Xcode):
+
+1. Run `npm run build:safari -- --xcode`. This wraps the extension in an Xcode project in `dist/safari/xcode/`. Set `XGLOW_BUNDLE_ID` to choose the bundle identifier, and add `--ios` to also create an iPhone and iPad app.
+2. Open the project in Xcode, select the macOS scheme and choose **Product → Run**.
+3. Enable **XGlow** in **Safari → Settings → Extensions** and allow it on `x.com`. Without a development certificate, select **Allow unsigned extensions** first, as above.
+
+To update, run `npm run build:safari` again, then build in Xcode (or reload the temporary extension). The Xcode project keeps its signing settings; add `--force` to recreate it.
+
+### Privacy and Store
+
 Read the [privacy policy](docs/PRIVACY.md). Store listing materials and submission notes are in [docs/store](docs/store/LISTING.md).
 
 To update a local installation, replace its files, click **Reload** on the extension’s card, then reload X.
 
 ## Privacy
 
-The extension requests only `storage` and runs only on the X/Twitter domains listed in its manifest. Preferences are stored with `chrome.storage.local`.
+The extension requests only `storage` and runs only on the X/Twitter domains listed in its manifest. Preferences are stored with the extension's local storage (`chrome.storage.local`, or `browser.storage.local` in Safari).
 
 The runtime processes page structure, interface colors, the current X route and limited interaction signals locally to apply CSS and preserve layout behavior. It does not persist page content or interaction histories, send analytics, make network requests, or perform account actions. X Chat styling is applied inside its open shadow roots. The [privacy policy](docs/PRIVACY.md) describes this local processing and the corresponding Store disclosures.
 
@@ -118,6 +144,8 @@ npm run package
 ```
 
 This requires the `zip` command and creates `dist/xglow-<version>.zip`. The archive contains extension files and the license, with `manifest.json` at its root. Tests, demos, screenshots and local notes are excluded.
+
+`npm run build:safari` creates the Safari edition the same way, as `dist/xglow-safari-<version>.zip`. Its manifest replaces `minimum_chrome_version` with a Safari minimum version; all other files are identical.
 
 ## Compatibility
 
