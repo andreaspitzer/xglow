@@ -105,6 +105,19 @@ for (const [theme, definition] of themes) {
       });
       expect(result).toEqual({ clickable: true, connectorWidth: 2, notificationFits: true, popupFits: true });
       await page.evaluate(() => {
+        const content = document.querySelector('[data-testid=primaryColumn] > div');
+        content.append(document.querySelector('#unread-notification-fixture').content.cloneNode(true));
+      });
+      await expect(page.locator('[data-xlg-unread]')).toHaveCount(1);
+      for (const lite of [false, true]) {
+        await apply(page, { theme, lite });
+        const layers = await page.evaluate(() => ['.unread-notification', '.hovered-notification'].map(selector => getComputedStyle(document.querySelector(selector)).backgroundImage));
+        const tint = /^linear-gradient\(rgba\(\d+, \d+, \d+, 0\.16\)/;
+        expect(layers[0], `${theme} lite=${lite} unread tint`).toMatch(tint);
+        expect(layers[1], `${theme} lite=${lite} read notification`).not.toMatch(tint);
+      }
+      await apply(page, { theme });
+      await page.evaluate(() => {
         history.pushState(null, '', '/sample/status/123');
         document.querySelector('[data-testid=primaryColumn]').append(document.createElement('span'));
       });

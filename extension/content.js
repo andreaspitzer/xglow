@@ -256,6 +256,47 @@
     }
   }
 
+  /* ------------------------------------------------ Unread notifications */
+
+  // X tints unread notifications with an atomic class on the article itself
+  // (rgba(29, 155, 240, .14) with the blue accent), which the card surface
+  // replaces. The class is a hash, so its color is read from X's own rule.
+  const classBackgrounds = new Map();
+  let indexedRules = -1;
+
+  function indexClassBackgrounds() {
+    const sheets = [...document.styleSheets].map(sheet => {
+      try { return sheet.cssRules; } catch { return []; }
+    });
+    const total = sheets.reduce((sum, rules) => sum + rules.length, 0);
+    if (total === indexedRules) return;
+    indexedRules = total;
+    for (const rules of sheets) {
+      for (const rule of rules) {
+        const name = /^\.(r-[\w-]+)$/.exec(rule.selectorText || '')?.[1];
+        if (name) classBackgrounds.set(name, rule.style?.backgroundColor || '');
+      }
+    }
+  }
+
+  // The unread tint is a translucent accent; the hover overlay is a
+  // translucent gray (white or black), and the native surfaces are opaque.
+  function isAccentTint(color) {
+    const [red, green, blue, alpha = 1] = color.match(/[\d.]+/g)?.map(Number) || [];
+    return alpha > 0 && alpha < 1 && !(red === green && green === blue);
+  }
+
+  function markUnread(article) {
+    const classes = [...article.classList].filter(name => name.startsWith('r-'));
+    if (classes.some(name => !classBackgrounds.has(name))) {
+      indexClassBackgrounds();
+      // X inserts a class's rule before rendering it: a class still missing
+      // has no single-class rule, such as one used only in compound selectors.
+      for (const name of classes) if (!classBackgrounds.has(name)) classBackgrounds.set(name, '');
+    }
+    article.toggleAttribute('data-xlg-unread', classes.some(name => isAccentTint(classBackgrounds.get(name) || '')));
+  }
+
   /* ------------------------------------------- Connected timeline posts */
 
   const conversationObserver = new ResizeObserver(() => schedule());
@@ -410,8 +451,11 @@
   }
 
   // Aggregated notifications (likes, follows) use their own article test id.
+  const CARD_ARTICLE = 'article:is([data-testid="tweet"], [data-testid="notification"])';
+
   function markCellShells(primary) {
-    for (const article of primary.querySelectorAll('article:is([data-testid="tweet"], [data-testid="notification"])')) {
+    for (const article of primary.querySelectorAll(CARD_ARTICLE)) {
+      markUnread(article);
       const cell = article.closest('[data-testid="cellInnerDiv"]');
       if (!cell) continue;
       for (let shell = article.parentElement; shell && shell !== cell; shell = shell.parentElement) mark(shell, 'data-xlg-cell-shell');
@@ -564,6 +608,12 @@
   const isRelevantMutation = record => record.addedNodes.length || record.removedNodes.length ||
     (record.type === 'attributes' && record.target.matches(`[data-testid="cellInnerDiv"], ${CONNECTOR}`));
   new MutationObserver(records => {
+    // X drops the unread class in place once the notification has been seen.
+    if (settings.enabled) {
+      for (const record of records) {
+        if (record.type === 'attributes' && record.target.matches(CARD_ARTICLE)) markUnread(record.target);
+      }
+    }
     if (records.some(isRelevantMutation)) schedule();
   }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
   schedule();

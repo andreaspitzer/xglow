@@ -74,7 +74,7 @@ html[data-xlg][data-xlg-cyber] [data-xlg-toolbar]:has([data-xlg-search-form]) [r
 html[data-xlg][data-xlg-cyber][data-xlg-lite] [data-xlg-nav]::before,
 html[data-xlg][data-xlg-cyber][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-testid="Dropdown"]),
 html[data-xlg][data-xlg-cyber][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
-  background: var(--xlg-surface) !important;
+  background: var(--xlg-card-tint), var(--xlg-surface) !important;
 }
 html[data-xlg][data-xlg-cyber][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]::before {
   background: var(--xlg-surface);

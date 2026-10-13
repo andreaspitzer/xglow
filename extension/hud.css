@@ -149,7 +149,7 @@ html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) :is([data-xl
 html[data-xlg][data-xlg-hud][data-xlg-lite] [data-xlg-nav]::before,
 html[data-xlg][data-xlg-hud][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-testid="Dropdown"]):not(:has([data-xlg-search-form])),
 html[data-xlg][data-xlg-hud][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
-  background: var(--xlg-surface) !important;
+  background: var(--xlg-card-tint), var(--xlg-surface) !important;
 }
 html[data-xlg][data-xlg-hud][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]:not([data-xlg-conversation^="open"]):not([data-xlg-conversation$="open"])::before {
   background: var(--xlg-surface);

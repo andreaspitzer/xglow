@@ -80,6 +80,7 @@ html[data-xlg][data-xlg-theme="paper"] [data-xlg-toolbar] {
 ```
 
 - The `data-xlg` gate must be present so disabling XGlow restores X. Reuse markers such as `data-xlg-toolbar`, `data-xlg-panel` and `data-xlg-conversation`.
+- A theme that redeclares the card background, including in lightweight mode, keeps `var(--xlg-card-tint)` as its first layer so unread notifications remain recognizable.
 - Use `--xlg-*` properties. Give theme-only tokens a distinct prefix such as `--xlg-paper-*`; use the shared palette for accent and surface colors.
 - New themes use the generic theme-ID scope. `data-xlg-cyber` and `data-xlg-hud` are legacy gates, retained for the existing themes.
 - Keep `glass.css` as the shared layout/base. Do not rewrite other themes or popup styling when adding a theme.

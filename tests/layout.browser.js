@@ -88,6 +88,19 @@
   check(['backgroundColor', 'borderRadius', 'padding', 'margin', 'backdropFilter'].every(property => getComputedStyle(notification)[property] === getComputedStyle(tweet)[property]), 'Aggregated notifications and posts get the same glass card');
   check(getComputedStyle(document.querySelector('.notification-shell')).borderBottomColor === 'rgba(0, 0, 0, 0)', 'Aggregated notifications keep no outer separators');
 
+  content.append(document.getElementById('unread-notification-fixture').content.cloneNode(true));
+  await settle();
+  const unread = document.querySelector('.unread-notification');
+  const hovered = document.querySelector('.hovered-notification');
+  const accent = getComputedStyle(root).getPropertyValue('--xlg-ui-accent-rgb').split(',').map(channel => channel.trim()).join(', ');
+  const tinted = element => getComputedStyle(element).backgroundImage.startsWith(`linear-gradient(rgba(${accent}, 0.16)`);
+  check(unread.hasAttribute('data-xlg-unread') && !hovered.hasAttribute('data-xlg-unread'), 'Only X\'s accent tint marks a notification as unread, not the gray hover overlay');
+  check(tinted(unread) && !tinted(hovered) && !tinted(notification), 'Unread notifications keep an accent tint on the card surface');
+  check(getComputedStyle(unread).borderTopColor !== getComputedStyle(hovered).borderTopColor, 'Unread notifications have an accent border');
+  unread.classList.remove('r-1eltapf'); await settle();
+  check(!unread.hasAttribute('data-xlg-unread') && !tinted(unread), 'A notification seen in place loses the unread tint');
+  unread.classList.add('r-1eltapf'); await settle();
+
   const backgroundSize = getComputedStyle(root).backgroundSize;
   const spacer = document.createElement('div'); spacer.style.height = '5000px'; content.append(spacer);
   window.scrollTo(0, innerHeight + 800); await settle();
@@ -101,6 +114,7 @@
   await settle();
   check(getComputedStyle(nav, '::before').backdropFilter === 'none', 'Lightweight mode also disables blur in the navigation');
   check(getComputedStyle(notification).backdropFilter === 'none', 'Lightweight mode also applies to aggregated notifications');
+  check(tinted(unread) && !tinted(notification), 'Lightweight mode keeps the unread tint');
   await chrome.storage.local.set({ xGlass: { cards: false } }); await settle();
   check(getComputedStyle(notification).backdropFilter !== 'none' && getComputedStyle(notification).borderRadius === '22px', 'The retired cards preference cannot disable notification surfaces');
   await chrome.storage.local.set({ xGlass: {} });

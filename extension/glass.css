@@ -34,6 +34,9 @@ html[data-xlg] {
   --xlg-hover: rgba(255, 255, 255, .065);
   --xlg-accent: rgb(var(--xlg-ui-accent-rgb));
   --xlg-surface: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,0) 48%), rgba(var(--xlg-base), var(--xlg-opacity));
+  /* Top layer of post cards, set on unread notifications. Surfaces declared
+     together with the cards inherit this transparent default. */
+  --xlg-card-tint: linear-gradient(transparent, transparent);
 }
 html[data-xlg][data-xlg-tone="light"] {
   --xlg-base: 255, 255, 255;
@@ -329,7 +332,7 @@ html[data-xlg] [data-xlg-new-posts]:is(:hover, :focus-visible) {
 /* ------------------------------------------------------------- Post cards */
 
 html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
-  background: var(--xlg-surface) !important;
+  background: var(--xlg-card-tint), var(--xlg-surface) !important;
   border: 1px solid var(--xlg-border) !important;
   border-radius: 22px !important;
   margin: 6px 10px 10px !important;
@@ -338,6 +341,12 @@ html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColum
   -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(135%) !important;
   backdrop-filter: blur(var(--xlg-blur)) saturate(135%) !important;
   transition: border-color .18s ease, background-color .18s ease;
+}
+/* X's blue unread tint is painted on the article and replaced by the card
+   surface: unread notifications (see content.js) get an accent tint instead. */
+html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article[data-xlg-unread]:not(:has(.r-m5arl1)) {
+  --xlg-card-tint: linear-gradient(rgba(var(--xlg-ui-accent-rgb), .16), rgba(var(--xlg-ui-accent-rgb), .16));
+  border-color: rgba(var(--xlg-ui-accent-rgb), .5) !important;
 }
 html[data-xlg][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)):hover {
   border-color: rgba(var(--xlg-ui-accent-rgb), .38) !important;
@@ -542,7 +551,7 @@ html[data-xlg][data-xlg-lite] :is([data-xlg-panel], [data-xlg-toolbar], [data-xl
 html[data-xlg][data-xlg-lite][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)) {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  background: linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .88) !important;
+  background: var(--xlg-card-tint), linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .88) !important;
 }
 html[data-xlg][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-conversation]::before {
   -webkit-backdrop-filter: none;
