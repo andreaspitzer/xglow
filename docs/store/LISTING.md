@@ -22,10 +22,11 @@ This file contains ready-to-use English listing copy and permission explanations
 
 Give X a liquid glass look with translucent cards, soft reflections and rounded surfaces. Keep your familiar feed and make its appearance your own.
 
-• Choose from seven color presets or enter any HEX color.
+• Pick a theme: Liquid Glass, Cyberpunk Neon or Cyberpunk HUD.
+• Choose from seven color presets or enter any HEX color. Cyberpunk HUD keeps its fixed red and cyan palette.
 • Adjust tint, blur and glass opacity independently.
 • Hide the right sidebar for a focused, centered timeline, or bring it back with one toggle.
-• Enjoy glass styling across Home, notifications, profile covers and Chat.
+• Enjoy themed styling across Home, notifications, Explore and search, profile covers, menus, dialogs and Chat, with unread notifications still easy to spot.
 • Keep connected timeline posts together in one frame and preserve the familiar flow of post-detail replies.
 • Follow X's light or dark appearance, with an optional lightweight mode.
 
@@ -41,7 +42,7 @@ XGlow is free and open source under the MIT license. It is independently develop
 
 ### Single purpose
 
-Customize the visual appearance of X (formerly Twitter) with a locally configured liquid glass theme, including colors, glass effects and sidebar layout.
+Customize the visual appearance of X (formerly Twitter) with locally configured themes, including colors, glass effects and sidebar layout.
 
 ### Storage permission justification
 
