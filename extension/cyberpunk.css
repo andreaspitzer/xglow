@@ -69,6 +69,13 @@ html[data-xlg][data-xlg-cyber] [data-testid="primaryColumn"] a[href$="/header_ph
 html[data-xlg][data-xlg-cyber] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"] {
   border-radius: 0;
 }
+/* Keeps its own full-height tab treatment instead of the shared inset pill. */
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]::before {
+  content: none;
+}
+html[data-xlg][data-xlg-cyber] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:not([aria-selected="true"]):hover {
+  background: var(--xlg-hover) !important;
+}
 
 /* Lightweight mode paints its own opaque surfaces; keep the brackets. */
 html[data-xlg][data-xlg-cyber][data-xlg-lite] [data-xlg-nav]::before,

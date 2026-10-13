@@ -232,7 +232,8 @@
   function findSearchField(input, form) {
     if (form.closest('[data-testid="sidebarColumn"]')) return form;
     for (let shell = input.parentElement; shell && shell !== form; shell = shell.parentElement) {
-      if (parseFloat(getComputedStyle(shell).borderTopLeftRadius) >= 20) return shell;
+      // Square-cornered themes reshape the shell once marked: keep it.
+      if (shell.hasAttribute('data-xlg-search-field') || parseFloat(getComputedStyle(shell).borderTopLeftRadius) >= 20) return shell;
     }
     return form;
   }
@@ -249,8 +250,19 @@
       for (const popup of form.querySelectorAll('[role="listbox"]')) {
         mark(popup, 'data-xlg-search-popup');
         popup.removeAttribute('data-xlg-clear');
+        // The opaque shell around the menu holds result avatars, so the media
+        // rule in clearControls would keep it: clear it explicitly.
+        for (let shell = popup.parentElement; shell && shell !== form; shell = shell.parentElement) clearBackground(shell);
       }
       clearControls(form);
+      // In column headers (Explore, search results) the field shares a row
+      // with the back and settings buttons. X fixes that row and its single-
+      // child wrappers at 53px, up to the section that also holds the tabs.
+      const row = form.closest('[data-testid="primaryColumn"] :has(> * [data-testid="app-bar-back"], > * [data-testid="settingsAppBar"])');
+      if (row) {
+        mark(row, 'data-xlg-search-row');
+        for (let shell = row.parentElement; shell?.childElementCount === 1; shell = shell.parentElement) mark(shell, 'data-xlg-search-header');
+      }
       const sidebar = form.closest('[data-testid="sidebarColumn"]');
       if (sidebar) for (let shell = form.parentElement; shell && shell !== sidebar; shell = shell.parentElement) clearBackground(shell);
     }

@@ -130,6 +130,13 @@ html[data-xlg][data-xlg-hud] [data-testid="primaryColumn"] a[href$="/header_phot
 html[data-xlg][data-xlg-hud] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"] {
   border-radius: 0;
 }
+/* Keeps its own full-height tab treatment instead of the shared inset pill. */
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]::before {
+  content: none;
+}
+html[data-xlg][data-xlg-hud] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:not([aria-selected="true"]):hover {
+  background: var(--xlg-hover) !important;
+}
 
 /* Chamfered panels. Surfaces that hold search suggestions keep square
    corners instead: a clip would cut their dropdown. */

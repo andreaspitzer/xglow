@@ -447,11 +447,42 @@ html[data-xlg] [data-xlg-panel] {
 html[data-xlg] [data-xlg-search] {
   border-radius: 999px !important;
 }
-/* X swaps a 1px border + 1px padding for a 2px border on focus. Keep the
-   same total inset in both states, without resizing the native input shell. */
+/* On focus X swaps a 1px border plus a 1px inset (padding, or the border of
+   the inner wrapper) for a 2px border. Keep the same total inset in both
+   states, without resizing the native input shell. */
 html[data-xlg] [data-xlg-search-field] {
   border-width: 2px !important;
   padding: 0 !important;
+}
+html[data-xlg] [data-xlg-search-field] > div {
+  border-width: 0 !important;
+}
+/* X fixes the header row at 53px and offsets its contents: 8px above the
+   field only (so it touches the tabs), 12px above the settings button, and
+   buttons pulled 8-9px into the 16px side padding, in 56px columns. The row
+   grows instead, with an even 8px inset around the field, the buttons and
+   the tabs. */
+html[data-xlg] :is([data-xlg-search-row], [data-xlg-search-header]) {
+  height: auto !important;
+}
+html[data-xlg] [data-xlg-search-row] {
+  padding: 8px !important;
+}
+html[data-xlg] [data-xlg-search-row] div:has([data-xlg-search-form]),
+html[data-xlg] [data-xlg-search-row] div:has(> [data-testid="settingsAppBar"]) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+html[data-xlg] [data-xlg-search-row] :is([data-testid="app-bar-back"], [data-testid="settingsAppBar"]) {
+  margin-inline: 0 !important;
+}
+html[data-xlg] [data-xlg-search-row] > div:has([data-testid="app-bar-back"]) {
+  min-width: 0 !important;
+  margin-right: 8px !important;
+}
+html[data-xlg] [data-xlg-search-row] > div:has([data-testid="settingsAppBar"]) {
+  min-width: 0 !important;
+  margin-left: 8px !important;
 }
 html[data-xlg] [data-xlg-search] > div,
 html[data-xlg] [data-xlg-search] > div > div {
@@ -480,6 +511,32 @@ html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:first
 html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:last-child {
   border-bottom-right-radius: 20px;
 }
+/* Below the field, a full-height tab highlight would hang as a square-topped
+   block: tabs get an inset pill instead, like the navigation. Themes with
+   their own tab treatment opt out by removing the pseudo-element. */
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"] {
+  isolation: isolate;
+  background: transparent !important;
+}
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]::before {
+  content: "";
+  position: absolute;
+  inset: 6px 4px 8px;
+  z-index: -1;
+  border-radius: 999px;
+  pointer-events: none;
+  transition: background-color .18s ease;
+}
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"]:hover::before {
+  background: var(--xlg-hover);
+}
+html[data-xlg] [data-xlg-toolbar]:has([data-xlg-search-form]) [role="tab"][aria-selected="true"]::before {
+  background: rgba(var(--xlg-ui-accent-rgb), .13);
+}
+/* The tab bar's native separator would cross the rounded header corners. */
+html[data-xlg] [data-xlg-toolbar] [role="navigation"] {
+  border-color: transparent !important;
+}
 /* Kept nearly opaque so suggestions stay readable at any glass opacity. */
 html[data-xlg] [data-xlg-search-popup] {
   background: linear-gradient(135deg, rgba(255,255,255,.07), transparent 48%), rgba(var(--xlg-base), .94) !important;
@@ -489,6 +546,12 @@ html[data-xlg] [data-xlg-search-popup] {
   -webkit-backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
   backdrop-filter: blur(var(--xlg-blur)) saturate(155%) !important;
   z-index: 5 !important;
+  margin-top: 6px !important;
+}
+/* The native dropdown shell (cleared in content.js) keeps its own glow and
+   8px corners behind the themed surface. */
+html[data-xlg] :has(> [data-xlg-search-popup]) {
+  box-shadow: none !important;
 }
 html[data-xlg][data-xlg-lite] [data-xlg-search-popup] {
   -webkit-backdrop-filter: none !important;
@@ -563,6 +626,7 @@ html[data-xlg][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-c
 
 @media (prefers-reduced-motion: reduce) {
   html[data-xlg] [data-xlg-new-posts],
+  html[data-xlg] [role="tab"]::before,
   html[data-xlg] :is(header nav a > div, header nav button > div, [role="tab"], article[data-testid="tweet"], article[data-testid="notification"]) {
     transition: none !important;
   }
