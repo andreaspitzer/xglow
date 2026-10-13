@@ -606,6 +606,14 @@ html[data-xlg] :is(a, button, [role="tab"], [role="button"], input):focus-visibl
   outline: 2px solid var(--xlg-accent) !important;
   outline-offset: 3px !important;
 }
+/* Navigation links span the whole rail: ring the visible pill instead. */
+html[data-xlg] header[role="banner"] nav :is(a, button):focus-visible {
+  outline: none !important;
+}
+html[data-xlg] header[role="banner"] nav :is(a, button):focus-visible > div {
+  outline: 2px solid var(--xlg-accent) !important;
+  outline-offset: 2px !important;
+}
 
 /* -------------------------------------------------------- Lightweight mode */
 

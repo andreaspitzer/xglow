@@ -25,6 +25,9 @@
   await settle();
   check(bounds(nav).width === nativeNav.width && bounds(nav).height === nativeNav.height, 'Navigation keeps its native width and height');
   check(bounds(link).height === nativeLink.height, 'Navigation links keep their height');
+  link.focus();
+  check(link.matches(':focus-visible') && getComputedStyle(link).outlineStyle === 'none' && getComputedStyle(link.firstElementChild).outlineStyle === 'solid', 'Keyboard focus rings the navigation pill, not the whole rail row');
+  link.blur();
   const navInset = Number.parseFloat(getComputedStyle(nav, '::before').left);
   check(bounds(link).x - bounds(nav).x - navInset >= 8, 'Menu items have room inside the glass edge');
   check(JSON.stringify(dialogs.map(bounds)) === JSON.stringify(nativeDialogs), 'Dialogs keep native sizes and containing blocks');

@@ -151,7 +151,8 @@ html[data-xlg][data-xlg-cyber] [data-xlg-search]:focus-within {
 
 /* ------------------------------------------------------------------- Focus */
 
-html[data-xlg][data-xlg-cyber] :is(a, button, [role="tab"], [role="button"], input):focus-visible {
+html[data-xlg][data-xlg-cyber] :is(a, button, [role="tab"], [role="button"], input):focus-visible,
+html[data-xlg][data-xlg-cyber] header[role="banner"] nav :is(a, button):focus-visible > div {
   outline-color: rgb(var(--xlg-secondary-rgb)) !important;
   outline-offset: 2px !important;
 }
