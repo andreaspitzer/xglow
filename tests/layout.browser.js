@@ -113,6 +113,26 @@
   check(!unread.hasAttribute('data-xlg-unread') && !tinted(unread), 'A notification seen in place loses the unread tint');
   unread.classList.add('r-1eltapf'); await settle();
 
+  // Centered modal: blurred, tinted page behind a themed panel with translucent sticky bars.
+  document.body.append(document.getElementById('modal-fixture').content.cloneNode(true));
+  await settle();
+  const modalPanel = document.querySelector('.modal-panel'), mask = document.querySelector('[data-testid="mask"]');
+  check(modalPanel.hasAttribute('data-xlg-modal') && getComputedStyle(modalPanel).borderRadius === '24px' && getComputedStyle(modalPanel).backgroundColor.endsWith('0.94)'), 'Centered modals get the themed surface');
+  check(getComputedStyle(mask).backdropFilter.includes('blur') && getComputedStyle(mask).backgroundColor !== 'rgba(0, 0, 0, 0.5)', 'The page behind a modal is blurred and tinted');
+  const modalHeader = getComputedStyle(document.querySelector('.modal-header'));
+  check(document.querySelector('.modal-header').hasAttribute('data-xlg-modal-bar') && document.querySelector('.modal-toolbar').hasAttribute('data-xlg-modal-bar') && modalHeader.backgroundColor === 'rgba(0, 0, 0, 0)' && modalHeader.backdropFilter.includes('blur'), 'Sticky modal bars add no band and blur the content beneath them');
+  check(getComputedStyle(document.querySelector('.modal-body')).backgroundColor === 'rgba(0, 0, 0, 0)' && getComputedStyle(document.querySelector('[data-testid="UserAvatar-Container-modal"]')).backgroundColor === 'rgb(0, 0, 0)', 'Opaque modal wrappers are cleared; avatar backdrops stay');
+  document.querySelector('#layers').append(document.getElementById('viewer-fixture').content.cloneNode(true));
+  await settle();
+  check(!document.querySelector('.viewer-panel').hasAttribute('data-xlg-modal') && getComputedStyle(document.querySelector('.viewer-panel')).backgroundColor === 'rgba(0, 0, 0, 0.9)', 'Full-screen viewers keep their native look');
+  await chrome.storage.local.set({ xGlass: { lite: true } }); await settle();
+  const liteBar = getComputedStyle(document.querySelector('.modal-toolbar'));
+  check(getComputedStyle(mask).backdropFilter === 'none' && liteBar.backdropFilter === 'none' && liteBar.backgroundColor === getComputedStyle(root).getPropertyValue('--xlg-base').replace(/^\s*(.*?)\s*$/, 'rgb($1)').replace(/,\s*/g, ', '), 'Lightweight mode drops modal blurs and paints the bars like the panel');
+  await chrome.storage.local.set({ xGlass: { enabled: false } }); await settle();
+  check(getComputedStyle(modalPanel).backgroundColor === 'rgb(20, 20, 20)' && getComputedStyle(mask).backgroundColor === 'rgba(0, 0, 0, 0.5)', 'Disabling the theme restores native modals');
+  await chrome.storage.local.set({ xGlass: {} }); await settle();
+  document.querySelector('#layers').remove();
+
   const backgroundSize = getComputedStyle(root).backgroundSize;
   const spacer = document.createElement('div'); spacer.style.height = '5000px'; content.append(spacer);
   window.scrollTo(0, innerHeight + 800); await settle();

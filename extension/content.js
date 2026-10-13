@@ -12,8 +12,9 @@
   const CONNECTOR_UP = 'r-1p0dtai';
   // The rail collapses to icons below some viewport widths and always on Chat.
   const COMPACT_NAV_MAX_WIDTH = 110;
-  // Opaque backgrounds of X's dark, dim and light themes.
-  const NATIVE_SURFACES = new Set(['0,0,0', '255,255,255', '21,32,43', '22,24,28', '247,249,249', '239,243,244']);
+  // Opaque backgrounds of X's dark, dim and light themes, including the raised
+  // surface of dark modals and menus (20, 20, 20).
+  const NATIVE_SURFACES = new Set(['0,0,0', '20,20,20', '255,255,255', '21,32,43', '22,24,28', '247,249,249', '239,243,244']);
 
   let settings = XGlow.normalize();
   let nativeTone = 'dark';
@@ -199,17 +200,19 @@
   /* -------------------------------------------------- Native backgrounds */
 
   // Glass surfaces and elements that are already cleared.
-  const CLEAR_EXEMPT = '[data-xlg-composer], [data-xlg-toolbar], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-clear]';
+  const CLEAR_EXEMPT = '[data-xlg-composer], [data-xlg-toolbar], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-modal-bar], [data-xlg-clear]';
   // Backdrops of avatars and media are content, not interface.
   const MEDIA_CONTENT = '[data-testid^="UserAvatar-Container-"], [data-testid="Tweet-User-Avatar"], [data-testid="tweetPhoto"], [data-testid="videoPlayer"], [role="img"]';
 
+  function hasNativeSurface(element) {
+    const channels = getComputedStyle(element).backgroundColor.match(/[\d.]+/g);
+    if (!channels || !NATIVE_SURFACES.has(channels.slice(0, 3).join(','))) return false;
+    return !(channels.length === 4 && Number(channels[3]) === 0);
+  }
+
   // X paints its opaque theme color on many inner wrappers, hiding the glass.
   function clearBackground(element) {
-    if (element.matches(CLEAR_EXEMPT)) return;
-    const channels = getComputedStyle(element).backgroundColor.match(/[\d.]+/g);
-    if (!channels || !NATIVE_SURFACES.has(channels.slice(0, 3).join(','))) return;
-    if (channels.length === 4 && Number(channels[3]) === 0) return;
-    mark(element, 'data-xlg-clear');
+    if (!element.matches(CLEAR_EXEMPT) && hasNativeSurface(element)) mark(element, 'data-xlg-clear');
   }
 
   function clearControls(container) {
@@ -265,6 +268,29 @@
       }
       const sidebar = form.closest('[data-testid="sidebarColumn"]');
       if (sidebar) for (let shell = form.parentElement; shell && shell !== sidebar; shell = shell.parentElement) clearBackground(shell);
+    }
+  }
+
+  /* --------------------------------------------------------------- Modals */
+
+  // Centered modals (compose, settings dialogs) are a rounded panel on a
+  // full-screen mask in #layers. Full-screen dialogs, such as the media
+  // viewer or the compose screen on narrow viewports, keep their native look.
+  function discoverModals() {
+    for (const modal of document.querySelectorAll('#layers [role="dialog"][aria-modal="true"]')) {
+      const panel = modal.firstElementChild;
+      if (!panel) continue;
+      if (!panel.hasAttribute('data-xlg-modal')) {
+        const isPanel = parseFloat(getComputedStyle(panel).borderTopLeftRadius) >= 12 && panel.getBoundingClientRect().width < innerWidth;
+        if (!isPanel) continue;
+        mark(panel, 'data-xlg-modal');
+      }
+      // Sticky header and toolbar bars keep a translucent surface over the
+      // scrolling content; other opaque wrappers are cleared.
+      for (const element of panel.querySelectorAll('div')) {
+        if (getComputedStyle(element).position === 'sticky' && hasNativeSurface(element)) mark(element, 'data-xlg-modal-bar');
+      }
+      clearControls(panel);
     }
   }
 
@@ -593,6 +619,7 @@
     const primary = document.querySelector('[data-testid="primaryColumn"]');
     if (primary) discoverPrimary(primary);
     markSidebarPanels();
+    discoverModals();
   }
 
   // Structure is synced immediately; the full discovery runs once per frame.

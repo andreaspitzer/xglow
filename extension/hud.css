@@ -120,7 +120,7 @@ html[data-xlg][data-xlg-hud] [data-testid="User-Name"] > div:first-child :is(spa
 
 /* ------------------------------------------------------------ Panel shapes */
 
-html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-new-posts], [data-testid="Dropdown"]),
+html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-search], [data-xlg-search-popup], [data-xlg-new-posts], [data-xlg-modal], [data-testid="Dropdown"]),
 html[data-xlg][data-xlg-hud] [data-xlg-nav]::before,
 html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)),
 html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]::before,
@@ -140,7 +140,7 @@ html[data-xlg][data-xlg-hud] [data-xlg-toolbar]:has([data-xlg-search-form]) [rol
 
 /* Chamfered panels. Surfaces that hold search suggestions keep square
    corners instead: a clip would cut their dropdown. */
-html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-testid="Dropdown"]):not(:has([data-xlg-search-form])),
+html[data-xlg][data-xlg-hud] :is([data-xlg-panel], [data-xlg-toolbar], [data-xlg-composer], [data-xlg-reply-notice], [data-xlg-modal], [data-testid="Dropdown"]):not(:has([data-xlg-search-form])),
 html[data-xlg][data-xlg-hud] [data-xlg-nav]::before,
 html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-testid="primaryColumn"] article:is([data-testid="tweet"], [data-testid="notification"]):not(:has(.r-m5arl1)),
 html[data-xlg][data-xlg-hud][data-xlg-cards]:not([data-xlg-thread]) [data-xlg-conversation]:not([data-xlg-conversation^="open"]):not([data-xlg-conversation$="open"])::before {
