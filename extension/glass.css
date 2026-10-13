@@ -316,17 +316,35 @@ html[data-xlg]:not([data-xlg-thread]) [data-testid="primaryColumn"] [data-testid
 
 /* -------------------------------------------------------- Show new posts */
 
-/* Inset the interactive surface without changing the virtualized row height. */
+/* Inset the interactive surface without changing the virtualized row height.
+   The visible pill is drawn inside the 48px row so that it keeps the card
+   rhythm: 12px composer margin + 4px above; 9px + the 1px native separator +
+   6px card margin below. The label moves to the pill's center. */
 html[data-xlg] [data-xlg-new-posts] {
+  --xlg-new-posts-top: 4px;
+  --xlg-new-posts-bottom: 9px;
   box-sizing: border-box !important;
+  position: relative !important;
+  isolation: isolate;
   width: calc(100% - 20px) !important;
   margin-inline: 10px !important;
   border-radius: 16px !important;
   background: transparent !important;
+}
+html[data-xlg] [data-xlg-new-posts]::before {
+  content: "";
+  position: absolute;
+  inset: var(--xlg-new-posts-top) 0 var(--xlg-new-posts-bottom);
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
   transition: background-color .15s ease;
 }
-html[data-xlg] [data-xlg-new-posts]:is(:hover, :focus-visible) {
-  background: var(--xlg-hover) !important;
+html[data-xlg] [data-xlg-new-posts] > * {
+  translate: 0 calc((var(--xlg-new-posts-top) - var(--xlg-new-posts-bottom)) / 2);
+}
+html[data-xlg] [data-xlg-new-posts]:is(:hover, :focus-visible)::before {
+  background: var(--xlg-hover);
 }
 
 /* ------------------------------------------------------------- Post cards */
@@ -614,6 +632,14 @@ html[data-xlg] header[role="banner"] nav :is(a, button):focus-visible > div {
   outline: 2px solid var(--xlg-accent) !important;
   outline-offset: 2px !important;
 }
+/* The new-posts row is taller than its visible pill. */
+html[data-xlg] :is(button, [role="button"])[data-xlg-new-posts]:focus-visible {
+  outline: none !important;
+}
+html[data-xlg] [data-xlg-new-posts]:focus-visible::before {
+  outline: 2px solid var(--xlg-accent);
+  outline-offset: 2px;
+}
 
 /* -------------------------------------------------------- Lightweight mode */
 
@@ -633,8 +659,7 @@ html[data-xlg][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-c
 /* ------------------------------------------------------------- Media queries */
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-xlg] [data-xlg-new-posts],
-  html[data-xlg] [role="tab"]::before,
+  html[data-xlg] :is([data-xlg-new-posts], [role="tab"])::before,
   html[data-xlg] :is(header nav a > div, header nav button > div, [role="tab"], article[data-testid="tweet"], article[data-testid="notification"]) {
     transition: none !important;
   }
@@ -654,9 +679,12 @@ html[data-xlg][data-xlg-cards][data-xlg-lite]:not([data-xlg-thread]) [data-xlg-c
   }
 }
 
-/* Narrow screens: 6px side insets instead of 10px. */
+/* Narrow screens: 6px side insets instead of 10px. Cards sit 12px apart, so
+   the new-posts pill does too. */
 @media (max-width: 700px) {
   html[data-xlg] [data-xlg-new-posts] {
+    --xlg-new-posts-top: 0px;
+    --xlg-new-posts-bottom: 7px;
     width: calc(100% - 12px) !important;
     margin-inline: 6px !important;
   }

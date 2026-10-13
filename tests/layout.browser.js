@@ -71,6 +71,15 @@
   check(newPosts.hasAttribute('data-xlg-new-posts') && getComputedStyle(newPosts).borderRadius === '16px' && getComputedStyle(newPosts).marginLeft === inset, 'The new-posts row gets an inset, rounded surface');
   check(Math.abs(newPosts.getBoundingClientRect().left - card.left) < 1 && Math.abs(newPosts.getBoundingClientRect().right - card.right) < 1 && newPosts.getBoundingClientRect().height === 48, 'The new-posts row aligns with the cards and keeps its native height');
   check(getComputedStyle(newPostsCell.firstElementChild).borderBottomColor === 'rgba(0, 0, 0, 0)', 'The new-posts row loses the native separator');
+  // The visible pill keeps the gap between consecutive cards on both sides.
+  const row = newPosts.getBoundingClientRect(), pillStyle = getComputedStyle(newPosts, '::before');
+  const pill = { top: row.top + parseFloat(pillStyle.top), bottom: row.bottom - parseFloat(pillStyle.bottom) };
+  const composerBox = document.querySelector('[data-xlg-composer]').getBoundingClientRect();
+  const cardStyle = getComputedStyle(document.querySelector('article[data-testid="tweet"]'));
+  const cardGap = parseFloat(cardStyle.marginTop) + parseFloat(cardStyle.marginBottom);
+  check(pill.top - composerBox.bottom === cardGap && card.top - pill.bottom === cardGap, 'The new-posts pill is spaced like the cards above and below');
+  const label = newPosts.firstElementChild ? newPosts.firstElementChild.getBoundingClientRect() : null;
+  check(label && Math.abs((label.top + label.bottom) / 2 - (pill.top + pill.bottom) / 2) < 1, 'The new-posts label is centered in the pill');
   const recycled = document.createElement('a'); recycled.href = '#recycled'; newPostsCell.firstElementChild.append(recycled); await settle();
   check(!newPosts.hasAttribute('data-xlg-new-posts'), 'A recycled cell with other content loses the new-posts marker');
   recycled.remove(); await settle();
