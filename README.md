@@ -11,7 +11,7 @@ A liquid glass makeover for X. Same feed, a more personal look.
 - **Threads stay connected.** Related posts share a glass frame; post-detail replies keep X’s familiar flow and connection lines.
 - **Light or dark.** Follows X’s appearance, with a lightweight mode and reduced-motion support.
 - **Local and private.** No analytics, external services, API keys or account actions. Settings stay on your device.
-- **Open source, easy to install.** Load the extension directly in Chrome, with no build step or dependencies. Safari on macOS is supported too.
+- **Open source, easy to install.** Load the extension directly in Chrome, with no build step or dependencies. Safari on macOS can be installed manually.
 
 **[Download the latest release](https://github.com/monteduro/xglow/releases/latest)** · **[Installation instructions](#install)**
 
@@ -50,11 +50,11 @@ Chrome Web Store publication is being prepared; there is no Store listing yet. I
 
 ### Safari (macOS)
 
-Safari 16.4 or newer runs the same extension. Safari only loads extensions that are wrapped in an app, or temporary extensions for testing.
+Safari 16.4 or newer runs the same extension. There is no signed XGlow app and no App Store listing: Safari loads extensions permanently only from apps signed through the paid Apple Developer Program. Until then, Safari installs are manual and use Safari's developer settings.
 
-**Try it without Xcode** (recent Safari versions):
+**Temporary extension** (no Xcode needed):
 
-1. Run `npm run build:safari`. This creates `dist/xglow-safari-<version>.zip` and the folder `dist/safari/XGlow/`.
+1. Download **`xglow-safari-<version>.zip`** from the [latest release](https://github.com/monteduro/xglow/releases/latest), or build it from source with `npm run build:safari`, which creates `dist/xglow-safari-<version>.zip` and the folder `dist/safari/XGlow/`.
 2. In Safari, open **Settings → Advanced** and select **Show features for web developers**.
 3. Open **Settings → Developer** and select **Allow unsigned extensions**.
 4. On the same tab, click **Add Temporary Extension…** and select the ZIP or the folder.
@@ -62,11 +62,11 @@ Safari 16.4 or newer runs the same extension. Safari only loads extensions that 
 
 Safari removes temporary extensions after 24 hours or when you quit Safari, and resets **Allow unsigned extensions** when it quits.
 
-**Install it as an app** (needs Xcode):
+**Local app** (needs a source checkout, Node.js 20 or newer and Xcode):
 
 1. Run `npm run build:safari -- --xcode`. This wraps the extension in an Xcode project in `dist/safari/xcode/`. Set `XGLOW_BUNDLE_ID` to choose the bundle identifier, and add `--ios` to also create an iPhone and iPad app.
 2. Open the project in Xcode, select the macOS scheme and choose **Product → Run**.
-3. Enable **XGlow** in **Safari → Settings → Extensions** and allow it on `x.com`. Without a development certificate, select **Allow unsigned extensions** first, as above.
+3. Enable **XGlow** in **Safari → Settings → Extensions** and allow it on `x.com`. Without a development certificate, select **Allow unsigned extensions** first, as above, and again each time Safari restarts. The app stays installed.
 
 To update, run `npm run build:safari` again, then build in Xcode (or reload the temporary extension). The Xcode project keeps its signing settings; add `--force` to recreate it.
 
